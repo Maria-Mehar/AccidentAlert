@@ -44,3 +44,21 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Flutter/Dart related
+build/
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+
+# Android related
+android/**/build/
+android/.gradle/
+android/app/build/
+*.apk
+*.aar
+*.jks
+
+# Windows related
+build/windows/
