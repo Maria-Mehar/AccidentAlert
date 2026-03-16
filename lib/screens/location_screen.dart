@@ -1,204 +1,180 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
 
-class LocationScreen extends StatelessWidget {
+class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
 
   @override
+  State<LocationScreen> createState() => _LocationScreenState();
+}
+
+class _LocationScreenState extends State<LocationScreen> {
+  double? lat;
+  double? lng;
+
+  final MapController mapController = MapController();
+
+  @override
+  void initState() {
+    super.initState();
+    getLocation(); // Auto fetch on screen load
+  }
+
+  Future<void> getLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return;
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) return;
+    }
+
+    if (permission == LocationPermission.deniedForever) return;
+
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    setState(() {
+      lat = position.latitude;
+      lng = position.longitude;
+    });
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (lat != null && lng != null) {
+        mapController.move(LatLng(lat!, lng!), 16);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        /// Background wallpaper (SAME as Home screen)
-        Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/images/home.jpg"),
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-
-        /// Dark overlay
-        Container(color: Colors.black.withOpacity(0.35)),
-
-        SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                /// TITLE
-                const Text(
-                  "Location",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
+    return Scaffold(
+      body: Stack(
+        children: [
+          // 1. MAP BACKGROUND
+          lat == null
+              ? const Center(child: CircularProgressIndicator())
+              : FlutterMap(
+                  mapController: mapController,
+                  options: MapOptions(
+                    initialCenter: LatLng(lat!, lng!),
+                    initialZoom: 16,
                   ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  "Track & update your current position",
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
-                ),
-
-                const SizedBox(height: 25),
-
-                /// CURRENT LOCATION GLASS CARD
-                glassCard(
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.my_location,
-                        color: Colors.blue.shade300,
-                        size: 32,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          "Current Location\nTap to refresh",
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      userAgentPackageName: "com.example.accident_alert",
+                      maxZoom: 19,
+                      // subdomains: const ['a', 'b', 'c'],
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: LatLng(lat!, lng!),
+                          width: 40,
+                          height: 40,
+                          child: const Icon(
+                            Icons.location_on,
+                            color: Colors.red,
+                            size: 40,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
 
-                const SizedBox(height: 25),
+          // 2. TOP OVERLAY (As per your Screenshot)
+          SafeArea(
+            child: Container(
+              margin: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.45),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              // Material aur InkWell se 'Click Effect' (Ripple) aaye ga
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () async {
+                    // 1. TEXT CHANGE: Pehle data null karein taake "Updating..." dikhe
+                    setState(() {
+                      lat = null;
+                      lng = null;
+                    });
 
-                /// USE MY LOCATION BUTTON
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    // Location fetch karein
+                    await getLocation();
+
+                    // 2. SNACKBAR: Jab update ho jaye to niche confirmation message aaye
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Location Updated Successfully!"),
+                          duration: Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Icon
+                        Icon(
+                          Icons.my_location,
+                          color: Colors.blue.shade300,
+                          size: 26,
+                        ),
+                        const SizedBox(width: 12),
+
+                        // Text Details
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                lat != null && lng != null
+                                    ? "Lat: ${lat!.toStringAsFixed(5)}, Lng: ${lng!.toStringAsFixed(5)}"
+                                    : "Updating location...", // Click par ye nazar aaye ga
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              const Text(
+                                "Tap to refresh your Location",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: const Text(
-                    "Use My Location",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
                 ),
-
-                const SizedBox(height: 30),
-
-                /// MAP PREVIEW TEXT
-                const Text(
-                  "Map Preview",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 15),
-
-                /// MAP PREVIEW GLASS BOX
-                glassCard(
-                  child: SizedBox(
-                    height: 180,
-                    child: Center(
-                      child: Icon(
-                        Icons.map,
-                        color: Colors.white.withOpacity(0.25),
-                        size: 70,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                /// NEARBY ALERTS
-                const Text(
-                  "Nearby Accident Alerts",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 15),
-
-                glassCard(
-                  child: alertTile(
-                    icon: Icons.error,
-                    color: Colors.red.shade300,
-                    title: "Accident near Shahrah-e-Faisal",
-                    time: "5 min ago",
-                  ),
-                ),
-                const SizedBox(height: 15),
-
-                glassCard(
-                  child: alertTile(
-                    icon: Icons.warning_amber_rounded,
-                    color: Colors.orange.shade300,
-                    title: "Emergency in Gulshan Area",
-                    time: "12 min ago",
-                  ),
-                ),
-                const SizedBox(height: 15),
-
-                glassCard(
-                  child: alertTile(
-                    icon: Icons.traffic,
-                    color: Colors.yellow.shade300,
-                    title: "Traffic Jam due to incident",
-                    time: "20 min ago",
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  /// REUSABLE GLASS CARD (same as HomeScreen)
-  Widget glassCard({required Widget child}) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.25)),
-          ),
-          child: child,
-        ),
+        ],
       ),
-    );
-  }
-
-  /// ALERT TILE
-  Widget alertTile({
-    required IconData icon,
-    required Color color,
-    required String title,
-    required String time,
-  }) {
-    return Row(
-      children: [
-        Icon(icon, color: color, size: 32),
-        const SizedBox(width: 15),
-        Expanded(
-          child: Text(
-            title,
-            style: const TextStyle(color: Colors.white, fontSize: 15),
-          ),
-        ),
-        Text(time, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-      ],
     );
   }
 }
