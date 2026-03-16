@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:259751301254:android:d1c24f82a361bac6b14107",
         "android_client_info": {
-          "package_name": "com.accident_alert"
+          "package_name": "com.example.accident_alert"
         }
       },
       "oauth_client": [],
