@@ -27,18 +27,21 @@ dev_dependencies:
 
 flutter_native_splash: 
   color: "#1A1A1A"
-  image: assets/images/text_logo.png
-  # image: assets/images/logo_with_text.png
+  # image: assets/images/text_logo.png
+  image: assets/images/logo.png
+  branding: assets/images/text.png
   android: true
   ios: true
   web: false
   android_gravity: center
   ios_content_mode: scaleAspectFit
-  fullscreen: true
+  # fullscreen: true
 
   android_12:
-    image: assets/images/text_logo.png
-    # image: assets/images/logo_with_text.png
+    # image: assets/images/text_logo.png
+    image: assets/images/logo.png
+    branding: assets/images/text.png
+    icon_background_color: "#1A1A1A"
     color: "#1A1A1A"
 
 flutter:

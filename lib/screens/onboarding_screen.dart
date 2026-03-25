@@ -14,7 +14,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     super.initState();
 
     // Wait for 4 seconds before moving to AmbulanceScreen
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         Navigator.pushReplacement(
           context,

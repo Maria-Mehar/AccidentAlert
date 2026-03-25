@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -10,44 +11,90 @@ class LocationScreen extends StatefulWidget {
   State<LocationScreen> createState() => _LocationScreenState();
 }
 
-class _LocationScreenState extends State<LocationScreen> {
+class _LocationScreenState extends State<LocationScreen>
+    with WidgetsBindingObserver {
   double? lat;
   double? lng;
 
   final MapController mapController = MapController();
+  StreamSubscription<Position>? positionStream;
 
   @override
   void initState() {
     super.initState();
-    getLocation(); // Auto fetch on screen load
+    WidgetsBinding.instance.addObserver(this); // 🔥 detect resume
+    startLiveTracking();
   }
 
-  Future<void> getLocation() async {
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    positionStream?.cancel();
+    super.dispose();
+  }
+
+  // 🔥 APP RESUME (jab user settings se wapas aaye)
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      startLiveTracking(); // 🔥 auto restart
+    }
+  }
+
+  // 🔴 MAIN FUNCTION
+  Future<void> startLiveTracking() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return;
+
+    if (!serviceEnabled) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Location is OFF. Please enable it.")),
+        );
+      }
+
+      await Geolocator.openLocationSettings();
+      return;
+    }
 
     LocationPermission permission = await Geolocator.checkPermission();
+
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) return;
     }
 
-    if (permission == LocationPermission.deniedForever) return;
+    if (permission == LocationPermission.deniedForever) {
+      await Geolocator.openAppSettings();
+      return;
+    }
 
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
+    // 🔥 FIRST LOCATION
+    Position firstPosition = await Geolocator.getCurrentPosition();
 
     setState(() {
-      lat = position.latitude;
-      lng = position.longitude;
+      lat = firstPosition.latitude;
+      lng = firstPosition.longitude;
     });
 
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (lat != null && lng != null) {
-        mapController.move(LatLng(lat!, lng!), 16);
-      }
-    });
+    mapController.move(LatLng(lat!, lng!), 16);
+
+    // 🔥 STREAM START (pehle cancel karo agar already chal rahi ho)
+    await positionStream?.cancel();
+
+    positionStream =
+        Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            distanceFilter: 5,
+          ),
+        ).listen((Position position) {
+          setState(() {
+            lat = position.latitude;
+            lng = position.longitude;
+          });
+
+          mapController.move(LatLng(lat!, lng!), mapController.camera.zoom);
+        });
   }
 
   @override
@@ -55,23 +102,38 @@ class _LocationScreenState extends State<LocationScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // 1. MAP BACKGROUND
+          // 🗺 MAP
           lat == null
               ? const Center(child: CircularProgressIndicator())
               : FlutterMap(
                   mapController: mapController,
                   options: MapOptions(
                     initialCenter: LatLng(lat!, lng!),
-                    initialZoom: 16,
+                    initialZoom: 17, // 🔥 thoda zoom clear
                   ),
                   children: [
                     TileLayer(
                       urlTemplate:
                           "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      subdomains: ['a', 'b', 'c'],
                       userAgentPackageName: "com.example.accident_alert",
                       maxZoom: 19,
-                      // subdomains: const ['a', 'b', 'c'],
                     ),
+
+                    // 🔵 BLUE DOT
+                    CircleLayer(
+                      circles: [
+                        CircleMarker(
+                          point: LatLng(lat!, lng!),
+                          radius: 12,
+                          color: Colors.blue.withOpacity(0.2),
+                          borderStrokeWidth: 3,
+                          borderColor: Colors.blue,
+                        ),
+                      ],
+                    ),
+
+                    // 📍 MARKER
                     MarkerLayer(
                       markers: [
                         Marker(
@@ -81,7 +143,7 @@ class _LocationScreenState extends State<LocationScreen> {
                           child: const Icon(
                             Icons.location_on,
                             color: Colors.red,
-                            size: 40,
+                            size: 35,
                           ),
                         ),
                       ],
@@ -89,86 +151,68 @@ class _LocationScreenState extends State<LocationScreen> {
                   ],
                 ),
 
-          // 2. TOP OVERLAY (As per your Screenshot)
+          // 🔝 TOP BOX + BUTTON
           SafeArea(
             child: Container(
               margin: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.45),
                 borderRadius: BorderRadius.circular(16),
               ),
-              // Material aur InkWell se 'Click Effect' (Ripple) aaye ga
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () async {
-                    // 1. TEXT CHANGE: Pehle data null karein taake "Updating..." dikhe
-                    setState(() {
-                      lat = null;
-                      lng = null;
-                    });
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () async {
+                  setState(() {
+                    lat = null;
+                    lng = null;
+                  });
 
-                    // Location fetch karein
-                    await getLocation();
+                  await startLiveTracking();
 
-                    // 2. SNACKBAR: Jab update ho jaye to niche confirmation message aaye
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Location Updated Successfully!"),
-                          duration: Duration(seconds: 2),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    }
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
+                  if (lat != null && lng != null && mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Location Updated Successfully!"),
+                      ),
+                    );
+                  }
+                },
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.my_location,
+                      color: Colors.blue.shade300,
+                      size: 26,
                     ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Icon
-                        Icon(
-                          Icons.my_location,
-                          color: Colors.blue.shade300,
-                          size: 26,
-                        ),
-                        const SizedBox(width: 12),
-
-                        // Text Details
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                lat != null && lng != null
-                                    ? "Lat: ${lat!.toStringAsFixed(5)}, Lng: ${lng!.toStringAsFixed(5)}"
-                                    : "Updating location...", // Click par ye nazar aaye ga
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              const Text(
-                                "Tap to refresh your Location",
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            lat != null && lng != null
+                                ? "Lat: ${lat!.toStringAsFixed(5)}, Lng: ${lng!.toStringAsFixed(5)}"
+                                : "Turn ON location to continue",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 2),
+                          const Text(
+                            "Live tracking enabled",
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),

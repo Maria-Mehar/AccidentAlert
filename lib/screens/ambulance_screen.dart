@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'auth_screen.dart';
+import 'package:lottie/lottie.dart';
 
 class AmbulanceScreen extends StatefulWidget {
   const AmbulanceScreen({super.key});
@@ -13,7 +14,6 @@ class _AmbulanceScreenState extends State<AmbulanceScreen> {
   void initState() {
     super.initState();
 
-    // 5 sec baad Auth screen pr jao
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         Navigator.pushReplacement(
@@ -32,16 +32,20 @@ class _AmbulanceScreenState extends State<AmbulanceScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 🔹 Ambulance GIF
-            Image.asset(
-              'assets/animations/ambulance.gif',
-              width: 200,
-              height: 200,
-              fit: BoxFit.cover,
+            /// ✅ PERFECT CENTER FIX
+            SizedBox(
+              width: 220,
+              height: 220,
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: Lottie.asset('assets/animations/ambulance.json'),
+                ),
+              ),
             ),
+
             const SizedBox(height: 40),
 
-            // 🔹 Text below animation
             const Text(
               'Rescue on the Way...',
               style: TextStyle(
@@ -51,7 +55,9 @@ class _AmbulanceScreenState extends State<AmbulanceScreen> {
                 letterSpacing: 1,
               ),
             ),
+
             const SizedBox(height: 10),
+
             const Text(
               'Stay Safe with AcciSense',
               style: TextStyle(
