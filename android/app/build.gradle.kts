@@ -23,7 +23,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.accident_alert"
+        applicationId = "com.accident_alert"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -47,7 +47,7 @@ flutter {
 dependencies {
     implementation("com.google.android.material:material:1.12.0")
     // Firebase BoM ensures compatible versions
-    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.11.0"))
 
     // Firebase Analytics
     implementation("com.google.firebase:firebase-analytics")

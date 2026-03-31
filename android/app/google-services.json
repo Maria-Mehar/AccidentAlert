@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "259751301254",
+    "firebase_url": "https://accidentalert-1aac6-default-rtdb.firebaseio.com",
     "project_id": "accidentalert-1aac6",
     "storage_bucket": "accidentalert-1aac6.firebasestorage.app"
   },
@@ -9,10 +10,23 @@
       "client_info": {
         "mobilesdk_app_id": "1:259751301254:android:d1c24f82a361bac6b14107",
         "android_client_info": {
-          "package_name": "com.example.accident_alert"
+          "package_name": "com.accident_alert"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "259751301254-lkaaqkevevt5thc3s2so3shtk9jcs2qc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.accident_alert",
+            "certificate_hash": "44fdee19dfcbc27e8b67545694db7fefa042e02d"
+          }
+        },
+        {
+          "client_id": "259751301254-8eef9de0145aun4onk1eki6a1ccoe9d0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCWne2AkkM651_s-JoH4C7uhpMd5cx9n-I"
@@ -20,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "259751301254-8eef9de0145aun4onk1eki6a1ccoe9d0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
