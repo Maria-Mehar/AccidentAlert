@@ -10,7 +10,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          // 1. Background Image (Wahi jo baaqi screens mein hai)
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -20,7 +19,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
             ),
           ),
 
-          // 2. Dark Overlay
           Container(color: Colors.black.withOpacity(0.6)),
 
           // 3. Content
@@ -29,7 +27,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Column(
                 children: [
-                  // Custom Header (Back Arrow + Title)
                   Row(
                     children: [
                       GestureDetector(
@@ -53,7 +50,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
 
-                  // Glass Card for Policy Text
                   Expanded(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(22),
@@ -133,7 +129,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
     );
   }
 
-  // Helper widget for Section Titles
   Widget _policySection(String title, String body) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 25),
