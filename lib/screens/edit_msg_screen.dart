@@ -17,7 +17,6 @@ class _EditEmergencyMessageScreenState
         "I've been in an accident at this location. Please send help immediately!",
   );
 
-  // Toggle States
   bool _includeLocation = true;
   bool _highPriority = false;
 
@@ -27,27 +26,23 @@ class _EditEmergencyMessageScreenState
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          // 1. Background Image
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/home.jpg'), // Aapka image path
+                image: AssetImage('assets/images/home.jpg'),
                 fit: BoxFit.cover,
               ),
             ),
           ),
 
-          // 2. Dark Overlay
           Container(color: Colors.black.withOpacity(0.55)),
 
-          // 3. Main Content
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // --- Header Row (Arrow + Title) ---
                   Row(
                     children: [
                       GestureDetector(
@@ -71,7 +66,6 @@ class _EditEmergencyMessageScreenState
                   ),
                   const SizedBox(height: 25),
 
-                  // --- Glass Card for Settings ---
                   Expanded(
                     child: SingleChildScrollView(
                       child: ClipRRect(
@@ -100,7 +94,6 @@ class _EditEmergencyMessageScreenState
                                 ),
                                 const SizedBox(height: 15),
 
-                                // Text Input Field
                                 TextField(
                                   controller: _messageController,
                                   maxLines: 5,
@@ -121,7 +114,6 @@ class _EditEmergencyMessageScreenState
 
                                 const SizedBox(height: 10),
 
-                                // Reset Button
                                 Align(
                                   alignment: Alignment.centerRight,
                                   child: TextButton.icon(
@@ -150,7 +142,6 @@ class _EditEmergencyMessageScreenState
                                   height: 30,
                                 ),
 
-                                // --- Toggle Options ---
                                 _buildToggleOption(
                                   title: "Include Live Location",
                                   subtitle: "Attach Google Maps link",
@@ -189,13 +180,11 @@ class _EditEmergencyMessageScreenState
 
                   const SizedBox(height: 20),
 
-                  // --- Save Button ---
                   SizedBox(
                     width: double.infinity,
                     height: 55,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Success Feedback
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text("Emergency message saved!"),
@@ -230,7 +219,6 @@ class _EditEmergencyMessageScreenState
     );
   }
 
-  // Helper function to build toggle rows easily
   Widget _buildToggleOption({
     required String title,
     required String subtitle,
