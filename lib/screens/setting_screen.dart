@@ -1,5 +1,4 @@
 import 'dart:ui';
-// import 'package:accident_alert/screens/info_screen.dart';
 import 'package:flutter/material.dart';
 import 'info_screen.dart';
 
@@ -22,7 +21,6 @@ class _SettingsPageState extends State<SettingsPage> {
   bool vibration = true;
   double sensitivity = 0.6;
 
-  // --- Logout Warning Dialog Function ---
   void _showLogoutWarning(BuildContext context) {
     showDialog(
       context: context,
@@ -62,7 +60,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
                 onPressed: () {
-                  // Yahan apna logout logic (e.g. clear SharedPreferences) dalein
                   Navigator.pushNamedAndRemoveUntil(
                     context,
                     '/login',
