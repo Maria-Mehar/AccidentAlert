@@ -17,10 +17,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // FlutterNativeSplash.remove();
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Accident Alert App',
+      theme: ThemeData(
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Colors.amber,
+          selectionHandleColor: Colors.amber,
+          selectionColor: Color(0x4DFFC107), // Amber with some opacity
+        ),
+      ),
       initialRoute: '/',
       routes: {
         '/': (context) => const OnBoardingScreen(),

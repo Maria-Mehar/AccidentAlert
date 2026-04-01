@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'notification_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,6 +10,39 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // 1. Firebase user fetch karna
+  final User? currentUser = FirebaseAuth.instance.currentUser;
+  late String displayName;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeUser();
+  }
+
+  // 2. Name handle karne ka logic
+  void _initializeUser() {
+    if (currentUser != null) {
+      // Pehle check karein ke kya displayName mojood hai
+      if (currentUser!.displayName != null &&
+          currentUser!.displayName!.isNotEmpty) {
+        displayName = currentUser!.displayName!;
+      }
+      // Agar name null hai (jesa apka case hai), toh email se name nikalein
+      else if (currentUser!.email != null) {
+        displayName = currentUser!.email!.split(
+          '@',
+        )[0]; // e.g. maria@gmail.com -> maria
+        // Pehla letter capital karne ke liye (optional):
+        displayName = displayName[0].toUpperCase() + displayName.substring(1);
+      } else {
+        displayName = "User";
+      }
+    } else {
+      displayName = "Guest";
+    }
+  }
+
   final List<Map<String, dynamic>> modules = [
     {"icon": Icons.sensors, "label": "Accelerometer", "status": "ON"},
     {"icon": Icons.vibration, "label": "Vibration", "status": "ON"},
@@ -17,13 +50,37 @@ class _HomeScreenState extends State<HomeScreen> {
     {"icon": Icons.wifi, "label": "Network", "status": "Connected"},
   ];
 
+  void _sendSOSAlert(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: const [
+            Icon(Icons.check_circle, color: Colors.white),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                "Emergency alert sent to ambulance and registered contacts!",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.red.shade800,
+        duration: const Duration(seconds: 4),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(15),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.black, // Fallback color
+      backgroundColor: Colors.black,
       body: Stack(
         children: [
           Container(
@@ -34,26 +91,25 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-
-          Container(color: Colors.black.withOpacity(0.38)),
-
+          Container(color: Colors.black.withOpacity(0.45)),
           SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Maria Mehar 👋",
-                    style: TextStyle(
+                  // Updated Text with Dynamic Name
+                  Text(
+                    "$displayName 👋",
+                    style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 27,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 5),
                   const Text(
-                    "Welcome here",
+                    "Welcome back to AcciSense",
                     style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   const SizedBox(height: 22),
@@ -76,7 +132,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                         SizedBox(height: 10),
                         Text(
@@ -87,51 +142,58 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 35),
 
                   Center(
-                    child: Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const NotificationScreen(),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            width: 160,
-                            height: 160,
-                            decoration: BoxDecoration(
-                              color: Colors.redAccent.withOpacity(0.7),
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.redAccent.withOpacity(0.5),
-                                  blurRadius: 35,
-                                  spreadRadius: 8,
-                                ),
-                              ],
+                    child: GestureDetector(
+                      onTap: () => _sendSOSAlert(context),
+                      child: Container(
+                        width: 180,
+                        height: 180,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.red.shade600, Colors.red.shade900],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.7),
+                            width: 6,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.red.withOpacity(0.8),
+                              blurRadius: 45,
+                              spreadRadius: 15,
                             ),
-                            child: const Center(
-                              child: Text(
+                          ],
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(
+                                Icons.emergency_share,
+                                color: Colors.white,
+                                size: 35,
+                              ),
+                              Text(
                                 "SOS",
                                 style: TextStyle(
-                                  fontSize: 42,
+                                  fontSize: 50,
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 45),
+
                   SizedBox(
                     height: screenHeight * 0.22,
                     child: ListView.builder(
@@ -139,7 +201,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: modules.length,
                       itemBuilder: (context, index) {
                         final module = modules[index];
-
                         return Padding(
                           padding: const EdgeInsets.only(right: 14),
                           child: SizedBox(
@@ -179,8 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                   ),
-
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 25),
 
                   fullWidthInfoCard(
                     icon: Icons.location_on_outlined,
@@ -188,16 +248,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   fullWidthInfoCard(
                     icon: Icons.car_crash_outlined,
-                    text: "Auto Detection: On",
-                  ),
-
-                  fullWidthInfoCard(
-                    icon: Icons.battery_6_bar_outlined,
-                    text: "Battery: 85%",
+                    text: "Auto Detection: Enabled",
                   ),
                   fullWidthInfoCard(
-                    icon: Icons.notifications_none,
-                    text: "Last Alert: None",
+                    icon: Icons.battery_charging_full,
+                    text: "Battery Level: 85%",
+                  ),
+                  fullWidthInfoCard(
+                    icon: Icons.notifications_active_outlined,
+                    text: "Last Alert: No Recent Incident",
                   ),
                 ],
               ),
@@ -239,7 +298,11 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               child: Text(
                 text,
-                style: const TextStyle(color: Colors.white, fontSize: 17),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
           ],

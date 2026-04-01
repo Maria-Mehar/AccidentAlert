@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
@@ -11,49 +12,50 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  // ✅ Controllers
+  // ✅ 1. Tamam Controllers (Aapke original controllers)
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
+  // ✅ 2. UI State Variables (Eye toggle aur Loading ke liye)
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
+  bool _isLoading = false;
+
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-  // ✅ Google Sign-In Function (Naya Function)
+
+  // ✅ 3. Google Sign-In Function (Mukammal logic ke sath)
   Future<void> signInWithGoogle() async {
     try {
       print("Google Sign-In process started...");
+      setState(() => _isLoading = true);
 
-      // 1. Google Popup show karein
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
       if (googleUser == null) {
         print("Google Sign-In cancelled by user");
+        setState(() => _isLoading = false);
         return;
       }
 
-      // 2. Auth details lein
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
-
-      // 3. Firebase Credential banayein
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // 4. Firebase mein login karein
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithCredential(credential);
-
       print("Google Success: ${userCredential.user?.displayName}");
-      if (!mounted) return; // Context error se bachne ke liye
+
+      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Welcome ${userCredential.user?.displayName}")),
       );
 
-      // Success ke baad Login ya Home screen par bhej dein
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -64,38 +66,50 @@ class _SignupScreenState extends State<SignupScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Google Sign-In failed: $e")));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  // ✅ Purana Signup Function (Wese hi rakha hai)
+  // ✅ 4. Full Validation & Signup Function (Aapka + Mera Mix Logic)
   Future<void> signupUser() async {
     print("Signup process started...");
+
+    // Basic Empty Check
     if (usernameController.text.isEmpty ||
         emailController.text.isEmpty ||
         passwordController.text.isEmpty ||
         confirmPasswordController.text.isEmpty) {
       print("Validation Failed: Empty fields");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
+      _showSnackBar("Please fill all fields");
       return;
     }
 
+    // Email Regex (Aapka original regex)
     RegExp emailRegex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
-    if (!emailRegex.hasMatch(emailController.text)) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Enter a valid email")));
+    if (!emailRegex.hasMatch(emailController.text.trim())) {
+      _showSnackBar("Enter a valid email");
+      return;
+    }
+
+    // Password Strength & Match (Aapki condition + Professional check)
+    if (passwordController.text.length < 6) {
+      _showSnackBar("Password should be at least 6 characters");
+      return;
+    }
+
+    if (!RegExp(r'[0-9]').hasMatch(passwordController.text)) {
+      _showSnackBar("Password must contain at least one number");
       return;
     }
 
     if (passwordController.text != confirmPasswordController.text) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
+      _showSnackBar("Passwords do not match");
       return;
     }
 
+    // --- Firebase Call ---
+    setState(() => _isLoading = true);
     try {
       print(
         "Attempting to talk to Firebase with: ${emailController.text.trim()}",
@@ -109,9 +123,8 @@ class _SignupScreenState extends State<SignupScreen> {
 
       print("Firebase Success: ${userCredential.user?.uid}");
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Account created successfully")),
-      );
+      if (!mounted) return;
+      _showSnackBar("Account created successfully");
 
       Navigator.pushReplacement(
         context,
@@ -120,6 +133,7 @@ class _SignupScreenState extends State<SignupScreen> {
     } on FirebaseAuthException catch (e) {
       print("FIREBASE ERROR DETECTED: ${e.code} - ${e.message}");
 
+      // Aapke bataye hue specific error messages
       String message = "Signup failed";
       if (e.code == 'email-already-in-use') {
         message = "Email already in use";
@@ -127,14 +141,23 @@ class _SignupScreenState extends State<SignupScreen> {
         message = "Password should be at least 6 characters";
       } else if (e.code == 'network-request-failed') {
         message = "Check your internet connection";
+      } else if (e.message != null) {
+        message = e.message!;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      _showSnackBar(message);
     } catch (e) {
       print("UNKNOWN ERROR: $e");
+      _showSnackBar("An unexpected error occurred");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -143,6 +166,7 @@ class _SignupScreenState extends State<SignupScreen> {
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
+          // Background Image (Aapka original UI)
           Positioned.fill(
             child: Image.asset(
               "assets/images/auth.png",
@@ -151,8 +175,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   Container(color: Colors.grey[900]),
             ),
           ),
+          // Dark Overlay
           Positioned.fill(
-            child: Container(color: Colors.black.withOpacity(0.4)),
+            child: Container(color: Colors.black.withOpacity(0.5)),
           ),
           SafeArea(
             child: ListView(
@@ -199,101 +224,126 @@ class _SignupScreenState extends State<SignupScreen> {
         _glassInputCard(
           child: TextField(
             controller: usernameController,
+            cursorColor: Colors.amber,
+            textCapitalization: TextCapitalization.words,
             style: const TextStyle(color: Colors.white),
             decoration: _inputDecoration("Username", Icons.person),
           ),
         ),
-        const SizedBox(height: 12),
         _glassInputCard(
           child: TextField(
             controller: emailController,
+            cursorColor: Colors.amber,
             keyboardType: TextInputType.emailAddress,
             style: const TextStyle(color: Colors.white),
             decoration: _inputDecoration("Email", Icons.email),
           ),
         ),
-        const SizedBox(height: 12),
+        // ✅ Password with Eye Toggle
         _glassInputCard(
           child: TextField(
             controller: passwordController,
+            cursorColor: Colors.amber,
             style: const TextStyle(color: Colors.white),
-            obscureText: true,
-            decoration: _inputDecoration("Password", Icons.lock),
+            obscureText: !_isPasswordVisible,
+            decoration: _inputDecoration(
+              "Password",
+              Icons.lock,
+              suffix: IconButton(
+                icon: Icon(
+                  _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                  color: Colors.white70,
+                ),
+                onPressed: () =>
+                    setState(() => _isPasswordVisible = !_isPasswordVisible),
+              ),
+            ),
           ),
         ),
-        const SizedBox(height: 12),
+        // ✅ Confirm Password with Eye Toggle
         _glassInputCard(
           child: TextField(
             controller: confirmPasswordController,
+            cursorColor: Colors.amber,
             style: const TextStyle(color: Colors.white),
-            obscureText: true,
-            decoration: _inputDecoration("Confirm Password", Icons.lock),
+            obscureText: !_isConfirmPasswordVisible,
+            decoration: _inputDecoration(
+              "Confirm Password",
+              Icons.lock,
+              suffix: IconButton(
+                icon: Icon(
+                  _isConfirmPasswordVisible
+                      ? Icons.visibility
+                      : Icons.visibility_off,
+                  color: Colors.white70,
+                ),
+                onPressed: () => setState(
+                  () => _isConfirmPasswordVisible = !_isConfirmPasswordVisible,
+                ),
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 25),
+        // ✅ Signup Button with Loading Spinner
         _glassInputCard(
-          child: _signupButton(),
-          color: Colors.amber.withOpacity(0.5),
+          child: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                )
+              : _signupButton(),
+          color: Colors.amber.withOpacity(0.7),
         ),
         const SizedBox(height: 16),
         const Text("Or", style: TextStyle(color: Colors.white70)),
         const SizedBox(height: 16),
+        // ✅ Google Button
         _glassInputCard(
-          child: _googleButton(), // Is button par function ab active hai
-          color: Colors.white.withOpacity(0.1),
+          child: _googleButton(),
+          color: Colors.white.withOpacity(0.15),
         ),
       ],
     );
   }
 
-  Widget _bottomLink() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          "Already have an account? ",
-          style: TextStyle(color: Colors.white),
-        ),
-        GestureDetector(
-          onTap: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-            );
-          },
-          child: const Text(
-            "Login",
-            style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
-          ),
-        ),
-      ],
-    );
-  }
-
+  // ✅ Glass UI with Backdrop Filter (Blur)
   Widget _glassInputCard({required Widget child, Color? color}) {
     return Container(
-      width: double.infinity,
-      height: 60,
       margin: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color: color ?? Colors.white.withOpacity(0.1),
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: child,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            width: double.infinity,
+            height: 60,
+            decoration: BoxDecoration(
+              color: color ?? Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: child,
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  InputDecoration _inputDecoration(String hint, IconData icon) {
+  InputDecoration _inputDecoration(
+    String hint,
+    IconData icon, {
+    Widget? suffix,
+  }) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: Colors.white60, fontSize: 15),
-      prefixIcon: Icon(icon, color: Colors.white70),
+      hintStyle: const TextStyle(color: Colors.white70, fontSize: 14),
+      prefixIcon: Icon(icon, color: Colors.white),
+      suffixIcon: suffix,
       border: InputBorder.none,
-      contentPadding: const EdgeInsets.symmetric(vertical: 15),
+      contentPadding: const EdgeInsets.symmetric(vertical: 18),
     );
   }
 
@@ -315,7 +365,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Widget _googleButton() {
     return InkWell(
-      onTap: signInWithGoogle, // ✅ Ab ye link ho gaya hai
+      onTap: _isLoading ? null : signInWithGoogle,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -327,11 +377,33 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
           const SizedBox(width: 12),
           const Text(
-            "Sign In with Google",
+            "Sign Up with Google",
             style: TextStyle(fontSize: 16, color: Colors.white),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _bottomLink() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          "Already have an account? ",
+          style: TextStyle(color: Colors.white),
+        ),
+        GestureDetector(
+          onTap: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          ),
+          child: const Text(
+            "Login",
+            style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
     );
   }
 
