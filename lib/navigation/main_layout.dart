@@ -5,7 +5,6 @@ import 'package:accident_alert/screens/location_screen.dart';
 import 'package:accident_alert/screens/history_screen.dart';
 import 'package:accident_alert/screens/notification_screen.dart';
 import 'package:accident_alert/screens/setting_screen.dart';
-// import 'package:accident_alert/screens/monitor_screen.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -19,15 +18,16 @@ class _MainLayoutState extends State<MainLayout> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
+
     const LocationScreen(),
-    // const MonitoringScreen(),
-    const HistoryScreen(), // time/history screen
-    const NotificationScreen(), // notifications screen
+    const HistoryScreen(),
+    const NotificationScreen(),
     const SettingsPage(),
   ];
 
   final List<Widget> _navigationItems = const [
     Icon(Icons.home, color: Colors.white),
+
     Icon(Icons.location_on, color: Colors.white),
     Icon(Icons.access_time_outlined, color: Colors.white),
     Icon(Icons.notifications, color: Colors.white),

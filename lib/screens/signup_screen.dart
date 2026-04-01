@@ -32,8 +32,7 @@ class _SignupScreenState extends State<SignupScreen> {
       }
 
       // 2. Auth details lein
-      final GoogleSignInAuthentication googleAuth =
-          googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
       // 3. Firebase Credential banayein
       final AuthCredential credential = GoogleAuthProvider.credential(
