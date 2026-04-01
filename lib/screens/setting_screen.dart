@@ -160,7 +160,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             style: TextStyle(color: Colors.white),
                           ),
                           value: automaticDetection,
-                          activeColor: Colors.redAccent,
+                          activeThumbColor: Colors.redAccent,
                           activeTrackColor: Colors.redAccent.withOpacity(0.4),
                           onChanged: (val) =>
                               setState(() => automaticDetection = val),
@@ -195,7 +195,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             style: TextStyle(color: Colors.white),
                           ),
                           value: soundAlert,
-                          activeColor: Colors.redAccent,
+                          activeThumbColor: Colors.redAccent,
                           activeTrackColor: Colors.redAccent.withOpacity(0.4),
                           onChanged: (val) => setState(() => soundAlert = val),
                         ),
@@ -206,7 +206,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           ),
                           value: vibration,
 
-                          activeColor: Colors.redAccent,
+                          activeThumbColor: Colors.redAccent,
                           activeTrackColor: Colors.redAccent.withOpacity(0.4),
                           onChanged: (val) => setState(() => vibration = val),
                         ),

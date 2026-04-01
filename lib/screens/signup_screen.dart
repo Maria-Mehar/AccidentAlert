@@ -1,7 +1,7 @@
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart'; // ✅ Naya Import
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -18,13 +18,14 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
   // ✅ Google Sign-In Function (Naya Function)
   Future<void> signInWithGoogle() async {
     try {
       print("Google Sign-In process started...");
 
       // 1. Google Popup show karein
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
         print("Google Sign-In cancelled by user");
@@ -32,7 +33,8 @@ class _SignupScreenState extends State<SignupScreen> {
       }
 
       // 2. Auth details lein
-      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       // 3. Firebase Credential banayein
       final AuthCredential credential = GoogleAuthProvider.credential(
@@ -45,6 +47,7 @@ class _SignupScreenState extends State<SignupScreen> {
           .signInWithCredential(credential);
 
       print("Google Success: ${userCredential.user?.displayName}");
+      if (!mounted) return; // Context error se bachne ke liye
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Welcome ${userCredential.user?.displayName}")),
@@ -57,6 +60,7 @@ class _SignupScreenState extends State<SignupScreen> {
       );
     } catch (e) {
       print("GOOGLE ERROR: $e");
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Google Sign-In failed: $e")));

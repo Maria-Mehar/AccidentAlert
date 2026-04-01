@@ -248,7 +248,7 @@ class _EditEmergencyMessageScreenState
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: Colors.redAccent,
+          activeThumbColor: Colors.redAccent,
           activeTrackColor: Colors.redAccent.withOpacity(0.4),
           inactiveThumbColor: Colors.white60,
         ),
