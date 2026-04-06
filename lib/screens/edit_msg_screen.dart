@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditEmergencyMessageScreen extends StatefulWidget {
   const EditEmergencyMessageScreen({super.key});
@@ -11,14 +12,23 @@ class EditEmergencyMessageScreen extends StatefulWidget {
 
 class _EditEmergencyMessageScreenState
     extends State<EditEmergencyMessageScreen> {
-  // Controller for text message
-  final TextEditingController _messageController = TextEditingController(
-    text:
-        "I've been in an accident at this location. Please send help immediately!",
-  );
+  final TextEditingController _messageController = TextEditingController();
 
-  bool _includeLocation = true;
-  bool _highPriority = false;
+  @override
+  void initState() {
+    super.initState();
+    _loadMessage();
+  }
+
+  Future<void> _loadMessage() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      // Memory se purana message lo, agar nahi hai to default dikhao
+      _messageController.text =
+          prefs.getString('emergency_message') ??
+          "I've been in an accident at this location. Please send help immediately!";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +44,7 @@ class _EditEmergencyMessageScreenState
               ),
             ),
           ),
-
           Container(color: Colors.black.withOpacity(0.55)),
-
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -65,7 +73,6 @@ class _EditEmergencyMessageScreenState
                     ],
                   ),
                   const SizedBox(height: 25),
-
                   Expanded(
                     child: SingleChildScrollView(
                       child: ClipRRect(
@@ -93,7 +100,6 @@ class _EditEmergencyMessageScreenState
                                   ),
                                 ),
                                 const SizedBox(height: 15),
-
                                 TextField(
                                   controller: _messageController,
                                   maxLines: 5,
@@ -111,9 +117,7 @@ class _EditEmergencyMessageScreenState
                                     ),
                                   ),
                                 ),
-
                                 const SizedBox(height: 10),
-
                                 Align(
                                   alignment: Alignment.centerRight,
                                   child: TextButton.icon(
@@ -136,32 +140,11 @@ class _EditEmergencyMessageScreenState
                                     ),
                                   ),
                                 ),
-
                                 const Divider(
                                   color: Colors.white24,
                                   height: 30,
                                 ),
-
-                                _buildToggleOption(
-                                  title: "Include Live Location",
-                                  subtitle: "Attach Google Maps link",
-                                  value: _includeLocation,
-                                  onChanged: (val) =>
-                                      setState(() => _includeLocation = val),
-                                ),
-
-                                const SizedBox(height: 15),
-
-                                _buildToggleOption(
-                                  title: "High Priority SMS",
-                                  subtitle: "Override 'Do Not Disturb'",
-                                  value: _highPriority,
-                                  onChanged: (val) =>
-                                      setState(() => _highPriority = val),
-                                ),
-
                                 const SizedBox(height: 20),
-
                                 const Text(
                                   "Note: This message will be sent to all your emergency contacts immediately after an accident is detected.",
                                   style: TextStyle(
@@ -177,21 +160,28 @@ class _EditEmergencyMessageScreenState
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   SizedBox(
                     width: double.infinity,
                     height: 55,
                     child: ElevatedButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Emergency message saved!"),
-                            backgroundColor: Colors.green,
-                          ),
+                      onPressed: () async {
+                        // Memory mein naya message save karein
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setString(
+                          'emergency_message',
+                          _messageController.text,
                         );
-                        Navigator.pop(context);
+
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Emergency message saved!"),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                          Navigator.pop(context);
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.redAccent.withOpacity(0.7),
@@ -216,43 +206,6 @@ class _EditEmergencyMessageScreenState
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildToggleOption({
-    required String title,
-    required String subtitle,
-    required bool value,
-    required Function(bool) onChanged,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Text(
-              subtitle,
-              style: const TextStyle(color: Colors.white54, fontSize: 12),
-            ),
-          ],
-        ),
-        Switch(
-          value: value,
-          onChanged: onChanged,
-          activeColor: Colors.redAccent,
-          activeTrackColor: Colors.redAccent.withOpacity(0.4),
-          inactiveThumbColor: Colors.white60,
-        ),
-      ],
     );
   }
 }
