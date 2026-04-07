@@ -1,12 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'info_screen.dart';
-
-import 'vehicle_selection.dart';
 import 'contact_screen.dart';
 import 'change_pasword.dart';
-import 'edit_msg_screen.dart';
 import 'privacy_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'login_screen.dart';
+import 'edit_msg_screen.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -33,8 +33,9 @@ class _SettingsPageState extends State<SettingsPage> {
               borderRadius: BorderRadius.circular(20),
               side: const BorderSide(color: Colors.redAccent, width: 1.5),
             ),
-            title: Row(
-              children: const [
+            title: const Row(
+              // Added const here
+              children: [
                 Icon(Icons.warning_amber_rounded, color: Colors.redAccent),
                 SizedBox(width: 10),
                 Text("Logout Alert", style: TextStyle(color: Colors.white)),
@@ -59,12 +60,24 @@ class _SettingsPageState extends State<SettingsPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                onPressed: () {
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/login',
-                    (route) => false,
-                  );
+                // --- SAHI LOGIC YAHAN HAI ---
+                onPressed: () async {
+                  // 1. SharedPreferences se data clear karein
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.clear();
+
+                  // 2. Dialog band karein aur Login screen par bhej dein
+                  if (context.mounted) {
+                    Navigator.pop(context); // Dialog close
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginScreen(),
+                      ),
+                      (route) => false,
+                    );
+                  }
                 },
                 child: const Text(
                   "Logout Anyway",
@@ -138,7 +151,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    const EditEmergencyMessageScreen(),
+                                    const EditEmergencyMessageScreen(), // Nayi screen ka name
                               ),
                             );
                           },
@@ -221,6 +234,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         sectionTitle("LOCATION"),
+
                         navTile(
                           "System Information",
                           onTap: () {
@@ -232,6 +246,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             );
                           },
                         ),
+
                         navTile(
                           "Privacy Policy",
                           onTap: () {
@@ -255,20 +270,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         sectionTitle("ACCOUNT"),
-
-                        navTile(
-                          "Vehicle & Driver Details",
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const VehicleSelectionScreen(
-                                  fromSettings: true,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
 
                         navTile(
                           "Change Password",
