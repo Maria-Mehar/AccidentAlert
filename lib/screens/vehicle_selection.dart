@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:accident_alert/navigation/main_layout.dart';
 
 class VehicleSelectionScreen extends StatefulWidget {
   final bool fromSettings;
@@ -13,17 +14,28 @@ class VehicleSelectionScreen extends StatefulWidget {
 class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
   String selectedVehicle = 'Car';
 
+  // ✅ Controllers for text fields
   final TextEditingController driverNameController = TextEditingController();
   final TextEditingController vehicleNumberController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
 
   final List<String> vehicles = ['Car', 'Bike', 'Bus', 'Truck'];
 
+  // ✅ Memory clean karne ke liye dispose method
+  @override
+  void dispose() {
+    driverNameController.dispose();
+    vehicleNumberController.dispose();
+    locationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
+          // Background Image
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -33,6 +45,7 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
             ),
           ),
 
+          // Dark Overlay
           Container(color: Colors.black.withOpacity(0.45)),
 
           SafeArea(
@@ -52,7 +65,6 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
                         ),
                       ),
                       const SizedBox(width: 15),
-
                       const Text(
                         "Vehicle Selection",
                         style: TextStyle(
@@ -63,7 +75,6 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 8),
                   const Text(
                     "Add driver, vehicle & location details",
@@ -71,6 +82,7 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
                   ),
                   const SizedBox(height: 25),
 
+                  // ✅ Main Input Card
                   glassCard(
                     child: Column(
                       children: [
@@ -80,11 +92,10 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
                           style: const TextStyle(color: Colors.white),
                           decoration: inputDecoration("Driver Name"),
                         ),
-
                         const SizedBox(height: 15),
 
                         DropdownButtonFormField<String>(
-                          initialValue: selectedVehicle,
+                          value: selectedVehicle,
                           dropdownColor: Colors.black87,
                           items: vehicles
                               .map(
@@ -103,7 +114,6 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
                           decoration: inputDecoration("Vehicle Type"),
                           style: const TextStyle(color: Colors.white),
                         ),
-
                         const SizedBox(height: 15),
 
                         TextField(
@@ -111,20 +121,17 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
                           cursorColor: Colors.redAccent,
                           style: const TextStyle(color: Colors.white),
                           decoration: inputDecoration(
-                            "Vehicle Number (LEA-1234)",
+                            "Vehicle Number (e.g. LEA-1234)",
                           ),
                         ),
-
-                        const SizedBox(height: 15),
-
-                        const SizedBox(height: 25),
+                        const SizedBox(height: 30),
 
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.redAccent.withOpacity(
-                                0.7,
+                                0.8,
                               ),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
@@ -132,21 +139,34 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
                               ),
                             ),
                             onPressed: () {
-                              ///
+                              if (driverNameController.text.isEmpty ||
+                                  vehicleNumberController.text.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Please fill all fields"),
+                                  ),
+                                );
+                                return;
+                              }
+
                               if (widget.fromSettings) {
                                 Navigator.pop(context);
                               } else {
-                                Navigator.pushReplacementNamed(
+                                Navigator.pushAndRemoveUntil(
                                   context,
-                                  '/main',
+                                  MaterialPageRoute(
+                                    builder: (context) => const MainLayout(),
+                                  ),
+                                  (route) => false,
                                 );
                               }
                             },
                             child: const Text(
-                              "Save",
+                              "Save Details",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
@@ -163,6 +183,7 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
     );
   }
 
+  // ✅ Glassmorphism Card Widget
   Widget glassCard({required Widget child}) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(22),
@@ -181,6 +202,7 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
     );
   }
 
+  // ✅ Input Decoration Helper
   InputDecoration inputDecoration(String label) {
     return InputDecoration(
       labelText: label,

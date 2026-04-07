@@ -1,7 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'signup_screen.dart';
-import 'package:accident_alert/navigation/main_layout.dart';
+// import 'package:accident_alert/navigation/main_layout.dart';
+import 'package:accident_alert/screens/vehicle_selection.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -42,7 +43,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const MainLayout()),
+        // MaterialPageRoute(builder: (context) => const MainLayout()),
+        MaterialPageRoute(builder: (context) => const VehicleSelectionScreen()),
       );
     } on FirebaseAuthException catch (e) {
       String message = "Login failed";
@@ -83,10 +85,10 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const MainLayout()),
+        MaterialPageRoute(builder: (context) => const VehicleSelectionScreen()),
       );
     } catch (e) {
-      _showSnackBar("Google login nakam: $e");
+      _showSnackBar("Google login failed: $e");
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -96,15 +98,15 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> resetPassword() async {
     final String email = emailController.text.trim();
     if (email.isEmpty) {
-      _showSnackBar("Reset link ke liye pehle Email darj karein");
+      _showSnackBar("Please enter your email first for the reset link.");
       return;
     }
 
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-      _showSnackBar("Password reset link aapki email par bhej diya gaya hai");
+      _showSnackBar("Password reset link has been sent to your email.");
     } catch (e) {
-      _showSnackBar("Galti: ${e.toString()}");
+      _showSnackBar("Error: ${e.toString()}");
     }
   }
 
