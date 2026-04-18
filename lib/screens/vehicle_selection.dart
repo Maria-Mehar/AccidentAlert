@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VehicleSelectionScreen extends StatefulWidget {
   final bool fromSettings;
@@ -18,6 +19,21 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
   final TextEditingController locationController = TextEditingController();
 
   final List<String> vehicles = ['Car', 'Bike', 'Bus', 'Truck'];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExistingData();
+  }
+
+  Future<void> _loadExistingData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      driverNameController.text = prefs.getString('driver_name') ?? "";
+      vehicleNumberController.text = prefs.getString('vehicle_number') ?? "";
+      selectedVehicle = prefs.getString('vehicle_type') ?? "Car";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +82,7 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
 
                   const SizedBox(height: 8),
                   const Text(
-                    "Add driver, vehicle & location details",
+                    "Add driver, vehicle",
                     style: TextStyle(color: Colors.white70),
                   ),
                   const SizedBox(height: 25),
@@ -131,8 +147,34 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
                                 borderRadius: BorderRadius.circular(30),
                               ),
                             ),
-                            onPressed: () {
-                              ///
+
+                            onPressed: () async {
+                              if (driverNameController.text.isEmpty ||
+                                  vehicleNumberController.text.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Please fill all fields"),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                return;
+                              }
+
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.setString(
+                                'driver_name',
+                                driverNameController.text,
+                              );
+                              await prefs.setString(
+                                'vehicle_type',
+                                selectedVehicle,
+                              );
+                              await prefs.setString(
+                                'vehicle_number',
+                                vehicleNumberController.text,
+                              );
+
                               if (widget.fromSettings) {
                                 Navigator.pop(context);
                               } else {
@@ -142,6 +184,7 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
                                 );
                               }
                             },
+
                             child: const Text(
                               "Save",
                               style: TextStyle(

@@ -17,7 +17,7 @@ class _EditEmergencyMessageScreenState
   @override
   void initState() {
     super.initState();
-    _loadMessage();
+    _loadMessage();  
   }
 
   Future<void> _loadMessage() async {

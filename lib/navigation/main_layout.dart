@@ -22,6 +22,7 @@ class _MainLayoutState extends State<MainLayout> {
     const LocationScreen(),
     const HistoryScreen(),
     const NotificationScreen(),
+
     const SettingsPage(),
   ];
 

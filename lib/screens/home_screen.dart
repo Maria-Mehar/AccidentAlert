@@ -1,6 +1,10 @@
 import 'dart:ui';
+import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'notification_screen.dart';
+import 'package:sensors_plus/sensors_plus.dart';
+
+import 'alert_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,13 +21,50 @@ class _HomeScreenState extends State<HomeScreen> {
     {"icon": Icons.wifi, "label": "Network", "status": "Connected"},
   ];
 
+  StreamSubscription<AccelerometerEvent>? _accelSubscription;
+  bool alertTriggered = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _accelSubscription = accelerometerEvents.listen((AccelerometerEvent event) {
+      if (!alertTriggered && detectAccident(event)) {
+        alertTriggered = true; // avoid multiple triggers
+        // Open AlertScreen
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const AlertScreen()),
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _accelSubscription?.cancel();
+    super.dispose();
+  }
+
+  bool detectAccident(AccelerometerEvent event) {
+    // Total acceleration = sqrt(x^2 + y^2 + z^2)
+    double totalAccel = sqrt(
+      event.x * event.x + event.y * event.y + event.z * event.z,
+    );
+
+    if (totalAccel > 25 || totalAccel < 2) {
+      return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.black, // Fallback color
+      backgroundColor: Colors.black,
       body: Stack(
         children: [
           Container(
@@ -34,9 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-
           Container(color: Colors.black.withOpacity(0.38)),
-
           SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
@@ -57,7 +96,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   const SizedBox(height: 22),
-
                   glassCard(
                     height: screenHeight * 0.28,
                     child: Column(
@@ -88,7 +126,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-
                   Center(
                     child: Column(
                       children: [
@@ -97,8 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    const NotificationScreen(),
+                                builder: (context) => const AlertScreen(),
                               ),
                             );
                           },
@@ -139,7 +175,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: modules.length,
                       itemBuilder: (context, index) {
                         final module = modules[index];
-
                         return Padding(
                           padding: const EdgeInsets.only(right: 14),
                           child: SizedBox(
@@ -179,9 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   fullWidthInfoCard(
                     icon: Icons.location_on_outlined,
                     text: "Location: Gujranwala",
@@ -190,7 +223,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: Icons.car_crash_outlined,
                     text: "Auto Detection: On",
                   ),
-
                   fullWidthInfoCard(
                     icon: Icons.battery_6_bar_outlined,
                     text: "Battery: 85%",

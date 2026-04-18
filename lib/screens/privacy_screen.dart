@@ -69,7 +69,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _policyHeader("Last Updated: March 2026"),
+                                // _policyHeader("Last Updated: March 2026"),
                                 const SizedBox(height: 20),
 
                                 _policySection(

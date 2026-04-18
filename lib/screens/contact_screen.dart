@@ -10,20 +10,17 @@ class ContactScreen extends StatefulWidget {
 
 class _ContactScreenState extends State<ContactScreen> {
   final List<Map<String, String>> contacts = [];
-
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
 
   void addContact() {
     if (nameController.text.isEmpty || phoneController.text.isEmpty) return;
-
     setState(() {
       contacts.add({
         'name': nameController.text,
         'phone': phoneController.text,
       });
     });
-
     nameController.clear();
     phoneController.clear();
   }
@@ -31,6 +28,7 @@ class _ContactScreenState extends State<ContactScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
           Container(
@@ -41,7 +39,6 @@ class _ContactScreenState extends State<ContactScreen> {
               ),
             ),
           ),
-
           Container(color: Colors.black.withOpacity(0.4)),
 
           SafeArea(
@@ -60,7 +57,6 @@ class _ContactScreenState extends State<ContactScreen> {
                         ),
                       ),
                       const SizedBox(width: 15),
-
                       const Text(
                         "Manage Contacts",
                         style: TextStyle(
@@ -71,74 +67,80 @@ class _ContactScreenState extends State<ContactScreen> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 15),
 
-                  glassCard(
-                    child: Column(
-                      children: [
-                        textField("Name", nameController),
-                        const SizedBox(height: 10),
-                        textField("Phone Number", phoneController),
-
-                        const SizedBox(height: 15),
-
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.redAccent.withOpacity(
-                                0.7,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                            ),
-                            onPressed: addContact,
-                            child: const Text(
-                              "Add Contact",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
                   Expanded(
-                    child: ListView.builder(
-                      itemCount: contacts.length,
-                      itemBuilder: (context, index) {
-                        final contact = contacts[index];
-                        return glassCard(
-                          child: ListTile(
-                            title: Text(
-                              contact['name']!,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            subtitle: Text(
-                              contact['phone']!,
-                              style: const TextStyle(color: Colors.white70),
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(
-                                Icons.delete,
-                                color: Colors.redAccent,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  contacts.removeAt(index);
-                                });
-                              },
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          glassCard(
+                            child: Column(
+                              children: [
+                                textField("Name", nameController),
+                                const SizedBox(height: 10),
+                                textField("Phone Number", phoneController),
+                                const SizedBox(height: 15),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.redAccent
+                                          .withOpacity(0.7),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(25),
+                                      ),
+                                    ),
+                                    onPressed: addContact,
+                                    child: const Text(
+                                      "Add Contact",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        );
-                      },
+
+                          const SizedBox(height: 10),
+
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.zero,
+                            itemCount: contacts.length,
+                            itemBuilder: (context, index) {
+                              final contact = contacts[index];
+                              return glassCard(
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  title: Text(
+                                    contact['name']!,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  subtitle: Text(
+                                    contact['phone']!,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                  trailing: IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.redAccent,
+                                    ),
+                                    onPressed: () => setState(
+                                      () => contacts.removeAt(index),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
