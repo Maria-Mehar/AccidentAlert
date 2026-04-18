@@ -14,6 +14,39 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // 1. Firebase user fetch karna
+  final User? currentUser = FirebaseAuth.instance.currentUser;
+  late String displayName;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeUser();
+  }
+
+  // 2. Name handle karne ka logic
+  void _initializeUser() {
+    if (currentUser != null) {
+      // Pehle check karein ke kya displayName mojood hai
+      if (currentUser!.displayName != null &&
+          currentUser!.displayName!.isNotEmpty) {
+        displayName = currentUser!.displayName!;
+      }
+      // Agar name null hai (jesa apka case hai), toh email se name nikalein
+      else if (currentUser!.email != null) {
+        displayName = currentUser!.email!.split(
+          '@',
+        )[0]; // e.g. maria@gmail.com -> maria
+        // Pehla letter capital karne ke liye (optional):
+        displayName = displayName[0].toUpperCase() + displayName.substring(1);
+      } else {
+        displayName = "User";
+      }
+    } else {
+      displayName = "Guest";
+    }
+  }
+
   final List<Map<String, dynamic>> modules = [
     {"icon": Icons.sensors, "label": "Accelerometer", "status": "ON"},
     {"icon": Icons.vibration, "label": "Vibration", "status": "ON"},
@@ -82,17 +115,18 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Maria Mehar 👋",
-                    style: TextStyle(
+                  // Updated Text with Dynamic Name
+                  Text(
+                    "$displayName 👋",
+                    style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 27,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 5),
                   const Text(
-                    "Welcome here",
+                    "Welcome back to AcciSense",
                     style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   const SizedBox(height: 22),
@@ -114,7 +148,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                         SizedBox(height: 10),
                         Text(
@@ -152,22 +185,33 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
-                            child: const Center(
-                              child: Text(
+                          ],
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(
+                                Icons.emergency_share,
+                                color: Colors.white,
+                                size: 35,
+                              ),
+                              Text(
                                 "SOS",
                                 style: TextStyle(
-                                  fontSize: 42,
+                                  fontSize: 50,
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 45),
+
                   SizedBox(
                     height: screenHeight * 0.22,
                     child: ListView.builder(
@@ -228,8 +272,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     text: "Battery: 85%",
                   ),
                   fullWidthInfoCard(
-                    icon: Icons.notifications_none,
-                    text: "Last Alert: None",
+                    icon: Icons.battery_charging_full,
+                    text: "Battery Level: 85%",
+                  ),
+                  fullWidthInfoCard(
+                    icon: Icons.notifications_active_outlined,
+                    text: "Last Alert: No Recent Incident",
                   ),
                 ],
               ),
@@ -271,7 +319,11 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               child: Text(
                 text,
-                style: const TextStyle(color: Colors.white, fontSize: 17),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
           ],

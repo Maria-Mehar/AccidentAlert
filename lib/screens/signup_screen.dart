@@ -1,68 +1,195 @@
 import 'dart:ui';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class SignupScreen extends StatelessWidget {
+class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
+
+  @override
+  State<SignupScreen> createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
+  // ✅ 1. Tamam Controllers (Aapke original controllers)
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+
+  // ✅ 2. UI State Variables (Eye toggle aur Loading ke liye)
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
+  bool _isLoading = false;
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  // ✅ 3. Google Sign-In Function (Mukammal logic ke sath)
+  Future<void> signInWithGoogle() async {
+    try {
+      print("Google Sign-In process started...");
+      setState(() => _isLoading = true);
+
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        print("Google Sign-In cancelled by user");
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
+      print("Google Success: ${userCredential.user?.displayName}");
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Welcome ${userCredential.user?.displayName}")),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    } catch (e) {
+      print("GOOGLE ERROR: $e");
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Google Sign-In failed: $e")));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  // ✅ 4. Full Validation & Signup Function (Aapka + Mera Mix Logic)
+  Future<void> signupUser() async {
+    print("Signup process started...");
+
+    // Basic Empty Check
+    if (usernameController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmPasswordController.text.isEmpty) {
+      print("Validation Failed: Empty fields");
+      _showSnackBar("Please fill all fields");
+      return;
+    }
+
+    // Email Regex (Aapka original regex)
+    RegExp emailRegex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
+    if (!emailRegex.hasMatch(emailController.text.trim())) {
+      _showSnackBar("Enter a valid email");
+      return;
+    }
+
+    // Password Strength & Match (Aapki condition + Professional check)
+    if (passwordController.text.length < 6) {
+      _showSnackBar("Password should be at least 6 characters");
+      return;
+    }
+
+    if (!RegExp(r'[0-9]').hasMatch(passwordController.text)) {
+      _showSnackBar("Password must contain at least one number");
+      return;
+    }
+
+    if (passwordController.text != confirmPasswordController.text) {
+      _showSnackBar("Passwords do not match");
+      return;
+    }
+
+    // --- Firebase Call ---
+    setState(() => _isLoading = true);
+    try {
+      print(
+        "Attempting to talk to Firebase with: ${emailController.text.trim()}",
+      );
+
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: emailController.text.trim(),
+            password: passwordController.text.trim(),
+          );
+
+      print("Firebase Success: ${userCredential.user?.uid}");
+
+      if (!mounted) return;
+      _showSnackBar("Account created successfully");
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    } on FirebaseAuthException catch (e) {
+      print("FIREBASE ERROR DETECTED: ${e.code} - ${e.message}");
+
+      // Aapke bataye hue specific error messages
+      String message = "Signup failed";
+      if (e.code == 'email-already-in-use') {
+        message = "Email already in use";
+      } else if (e.code == 'weak-password') {
+        message = "Password should be at least 6 characters";
+      } else if (e.code == 'network-request-failed') {
+        message = "Check your internet connection";
+      } else if (e.message != null) {
+        message = e.message!;
+      }
+
+      _showSnackBar(message);
+    } catch (e) {
+      print("UNKNOWN ERROR: $e");
+      _showSnackBar("An unexpected error occurred");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-          _fieldsGroup(context),
-
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("assets/images/auth.png"),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-
-          Container(color: Colors.black.withOpacity(0.4)),
-
+          // Background Image (Aapka original UI)
           Positioned.fill(
-            child: Column(
-              children: [
-                const SizedBox(height: 100),
-                _headerText(),
-
-                const Spacer(flex: 1),
-
-                _fieldsGroup(context),
-
-                const Spacer(flex: 2),
-              ],
+            child: Image.asset(
+              "assets/images/auth.png",
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) =>
+                  Container(color: Colors.grey[900]),
             ),
           ),
-
-          Positioned(
-            bottom: 70,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+          // Dark Overlay
+          Positioned.fill(
+            child: Container(color: Colors.black.withOpacity(0.5)),
+          ),
+          SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               children: [
-                const Text(
-                  "Already have an account? ",
-                  style: TextStyle(color: Colors.white),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LoginScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    "Login",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
+                const SizedBox(height: 60),
+                _headerText(),
+                const SizedBox(height: 30),
+                _fieldsGroup(),
+                const SizedBox(height: 20),
+                _bottomLink(),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -91,52 +218,86 @@ class SignupScreen extends StatelessWidget {
     );
   }
 
-  Widget _fieldsGroup(BuildContext context) {
+  Widget _fieldsGroup() {
     return Column(
       children: [
         _glassInputCard(
           child: TextField(
-            cursorColor: Colors.redAccent,
+            controller: usernameController,
+            cursorColor: Colors.amber,
+            textCapitalization: TextCapitalization.words,
             style: const TextStyle(color: Colors.white),
             decoration: _inputDecoration("Username", Icons.person),
           ),
         ),
-        const SizedBox(height: 12),
         _glassInputCard(
           child: TextField(
-            cursorColor: Colors.redAccent,
+            controller: emailController,
+            cursorColor: Colors.amber,
+            keyboardType: TextInputType.emailAddress,
             style: const TextStyle(color: Colors.white),
             decoration: _inputDecoration("Email", Icons.email),
           ),
         ),
-        const SizedBox(height: 12),
+        // ✅ Password with Eye Toggle
         _glassInputCard(
           child: TextField(
-            cursorColor: Colors.redAccent,
+            controller: passwordController,
+            cursorColor: Colors.amber,
             style: const TextStyle(color: Colors.white),
-            obscureText: true,
-            decoration: _inputDecoration("Password", Icons.lock),
+            obscureText: !_isPasswordVisible,
+            decoration: _inputDecoration(
+              "Password",
+              Icons.lock,
+              suffix: IconButton(
+                icon: Icon(
+                  _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                  color: Colors.white70,
+                ),
+                onPressed: () =>
+                    setState(() => _isPasswordVisible = !_isPasswordVisible),
+              ),
+            ),
           ),
         ),
-        const SizedBox(height: 12),
+        // ✅ Confirm Password with Eye Toggle
         _glassInputCard(
           child: TextField(
-            cursorColor: Colors.redAccent,
+            controller: confirmPasswordController,
+            cursorColor: Colors.amber,
             style: const TextStyle(color: Colors.white),
-            obscureText: true,
-            decoration: _inputDecoration("Confirm Password", Icons.lock),
+            obscureText: !_isConfirmPasswordVisible,
+            decoration: _inputDecoration(
+              "Confirm Password",
+              Icons.lock,
+              suffix: IconButton(
+                icon: Icon(
+                  _isConfirmPasswordVisible
+                      ? Icons.visibility
+                      : Icons.visibility_off,
+                  color: Colors.white70,
+                ),
+                onPressed: () => setState(
+                  () => _isConfirmPasswordVisible = !_isConfirmPasswordVisible,
+                ),
+              ),
+            ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 25),
+        // ✅ Signup Button with Loading Spinner
         _glassInputCard(
-          child: _signupButton(context),
-          color: Colors.amber.withOpacity(0.3),
+          child: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                )
+              : _signupButton(),
+          color: Colors.amber.withOpacity(0.7),
         ),
         const SizedBox(height: 16),
-        const Center(
-          child: Text("Or", style: TextStyle(color: Colors.white70)),
-        ),
+        const Text("Or", style: TextStyle(color: Colors.white70)),
         const SizedBox(height: 16),
+        // ✅ Google Button
         _glassInputCard(
           child: _googleButton(),
           color: Colors.white.withOpacity(0.15),
@@ -145,58 +306,57 @@ class SignupScreen extends StatelessWidget {
     );
   }
 
+  // ✅ Glass UI with Backdrop Filter (Blur)
   Widget _glassInputCard({required Widget child, Color? color}) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(30),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          height: 60,
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-            color: color ?? Colors.white.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: Colors.white.withOpacity(0.2)),
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            width: double.infinity,
+            height: 60,
+            decoration: BoxDecoration(
+              color: color ?? Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: child,
+            ),
           ),
-          child: child,
         ),
       ),
     );
   }
 
-  InputDecoration _inputDecoration(String hint, IconData icon) {
+  InputDecoration _inputDecoration(
+    String hint,
+    IconData icon, {
+    Widget? suffix,
+  }) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: Colors.white70),
+      hintStyle: const TextStyle(color: Colors.white70, fontSize: 14),
       prefixIcon: Icon(icon, color: Colors.white),
+      suffixIcon: suffix,
       border: InputBorder.none,
-      isDense: true,
       contentPadding: const EdgeInsets.symmetric(vertical: 18),
     );
   }
 
-  Widget _signupButton(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        // TODO: Signup logic
-
-        Navigator.pushReplacementNamed(context, '/vehicle');
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      ),
+  Widget _signupButton() {
+    return InkWell(
+      onTap: signupUser,
       child: const Center(
         child: Text(
           "Sign Up",
           style: TextStyle(
             fontSize: 18,
             color: Colors.white,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
@@ -204,29 +364,55 @@ class SignupScreen extends StatelessWidget {
   }
 
   Widget _googleButton() {
-    return TextButton(
-      onPressed: () {},
+    return InkWell(
+      onTap: _isLoading ? null : signInWithGoogle,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            height: 30,
-            width: 30,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/login_signup/google.png'),
-                fit: BoxFit.cover,
-              ),
-              shape: BoxShape.circle,
-            ),
+          Image.asset(
+            'assets/images/login_signup/google.png',
+            height: 25,
+            errorBuilder: (context, error, stackTrace) =>
+                const Icon(Icons.g_mobiledata, color: Colors.white, size: 30),
           ),
-          const SizedBox(width: 18),
+          const SizedBox(width: 12),
           const Text(
-            "Sign In with Google",
+            "Sign Up with Google",
             style: TextStyle(fontSize: 16, color: Colors.white),
           ),
         ],
       ),
     );
+  }
+
+  Widget _bottomLink() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          "Already have an account? ",
+          style: TextStyle(color: Colors.white),
+        ),
+        GestureDetector(
+          onTap: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          ),
+          child: const Text(
+            "Login",
+            style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
   }
 }

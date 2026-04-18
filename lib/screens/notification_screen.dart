@@ -9,26 +9,24 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
-  Map<String, dynamic>? currentNotification;
+  Map<String, dynamic>? currentNotification; // null = no accident yet
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      extendBodyBehindAppBar: true,
-
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("assets/images/home.jpg"),
-                fit: BoxFit.cover,
-              ),
+    return Stack(
+      children: [
+        // Background
+        Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/home.jpg"),
+              fit: BoxFit.cover,
             ),
           ),
+        ),
 
-          Container(color: Colors.black.withOpacity(0.35)),
+        // Dark overlay
+        Container(color: Colors.black.withOpacity(0.35)),
 
           SafeArea(
             child: Column(
@@ -53,33 +51,35 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     ),
                   ),
                 ),
+              ),
 
-                const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-                Expanded(
-                  child: currentNotification == null
-                      ? _buildEmptyState()
-                      : _buildAccidentNotification(currentNotification!),
+              Expanded(
+                child: currentNotification == null
+                    ? _buildEmptyState()
+                    : _buildAccidentNotification(currentNotification!),
+              ),
+
+              // Test button to simulate notification
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
                 ),
-
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
-                  ),
-                  child: _glassButton(
-                    text: "Simulate Notification",
-                    onTap: _addTestNotification,
-                  ),
+                child: _glassButton(
+                  text: "Simulate Notification",
+                  onTap: _addTestNotification,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
+  // ------------------- EMPTY STATE -------------------
   Widget _buildEmptyState() {
     return Center(
       child: ClipRRect(
@@ -121,6 +121,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
+  // ------------------- ACCIDENT NOTIFICATION -------------------
   Widget _buildAccidentNotification(Map<String, dynamic> notification) {
     return Center(
       child: ClipRRect(
@@ -162,6 +163,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
+  // ------------------- GLASS BUTTON -------------------
   Widget _glassButton({required String text, required VoidCallback onTap}) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
@@ -193,6 +195,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
+  // ------------------- ADD TEST NOTIFICATION -------------------
   void _addTestNotification() {
     final newNotification = {"time": "04:23 PM", "location": "F-10 Markaz"};
 
