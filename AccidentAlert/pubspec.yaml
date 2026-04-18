@@ -1,0 +1,49 @@
+name: accident_alert
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  curved_navigation_bar: ^1.0.6
+  lottie: ^3.1.0
+  video_player: ^2.10.1
+  flutter_map: ^8.2.2
+  latlong2: ^0.9.0
+  geolocator: ^10.1.1
+  firebase_core: ^4.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_native_splash: ^2.4.7
+
+flutter_native_splash: 
+  color: "#1A1A1A"
+  image: assets/images/text_logo.png
+  # image: assets/images/logo_with_text.png
+  android: true
+  ios: true
+  web: false
+  android_gravity: center
+  ios_content_mode: scaleAspectFit
+  fullscreen: true
+
+  android_12:
+    image: assets/images/text_logo.png
+    # image: assets/images/logo_with_text.png
+    color: "#1A1A1A"
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/animations/

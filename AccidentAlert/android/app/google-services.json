@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "259751301254",
+    "project_id": "accidentalert-1aac6",
+    "storage_bucket": "accidentalert-1aac6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:259751301254:android:d1c24f82a361bac6b14107",
+        "android_client_info": {
+          "package_name": "com.example.accident_alert"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWne2AkkM651_s-JoH4C7uhpMd5cx9n-I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
