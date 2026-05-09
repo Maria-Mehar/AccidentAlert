@@ -9,11 +9,12 @@ plugins {
 }
 
 android {
-    namespace = "com.accident_alert"
+    namespace = "com.AcciSense"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true 
         sourceCompatibility = JavaVersion.toVersion(17)
         targetCompatibility = JavaVersion.toVersion(17)
     }
@@ -23,7 +24,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.accident_alert"
+        applicationId = "com.AcciSense"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -54,6 +55,8 @@ dependencies {
 
     // Add other Firebase products if needed:
     // implementation("com.google.firebase:firebase-auth")
-    // implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-firestore")
     // implementation("com.google.firebase:firebase-messaging")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    
 }
