@@ -1,4 +1,4 @@
-name: accident_alert
+name: AcciSense
 description: "A new Flutter project."
 publish_to: 'none'
 
@@ -22,7 +22,6 @@ dependencies:
   geolocator: ^14.0.2
   google_sign_in: ^6.2.1
   shared_preferences: ^2.5.5
-  shared_preferences: ^2.5.5
   firebase_database: ^12.3.0
   firebase_messaging: ^16.2.0
   flutter_local_notifications: ^17.0.0
@@ -33,6 +32,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_native_splash: ^2.4.7
+  flutter_launcher_icons: ^0.14.0
 
 flutter_native_splash: 
   color: "#1A1A1A"
@@ -66,3 +66,4 @@ flutter:
   assets:
     - assets/images/
     - assets/animations/
+    - assets/alarm.mp3
