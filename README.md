@@ -1,4 +1,4 @@
-# accident_alert
+# AcciSense
 
 A new Flutter project.
 

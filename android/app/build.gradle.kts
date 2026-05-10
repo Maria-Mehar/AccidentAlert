@@ -1,32 +1,30 @@
 plugins {
     id("com.android.application")
-    id("kotlin-android")
+    // id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    // Add the Google services Gradle plugin
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.example.accident_alert"
+    namespace = "com.AcciSense"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        // Target Java 21 (latest LTS). Use toVersion(21) to stay compatible with Gradle JavaVersion enums.
-        sourceCompatibility = JavaVersion.toVersion(21)
-        targetCompatibility = JavaVersion.toVersion(21)
+        isCoreLibraryDesugaringEnabled = true 
+        sourceCompatibility = JavaVersion.toVersion(17)
+        targetCompatibility = JavaVersion.toVersion(17)
     }
 
     kotlinOptions {
-        // Kotlin's jvmTarget is a string (e.g. "11", "17", "21").
-        // Note: Ensure your Kotlin plugin and Android Gradle Plugin versions support this target.
-        jvmTarget = "21"
+        jvmTarget = "17"
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.accident_alert"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        applicationId = "com.AcciSense"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -35,8 +33,6 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -44,4 +40,23 @@ android {
 
 flutter {
     source = "../.."
+}
+
+// -------------------------
+// Firebase Dependencies
+// -------------------------
+dependencies {
+    implementation("com.google.android.material:material:1.12.0")
+    // Firebase BoM ensures compatible versions
+    implementation(platform("com.google.firebase:firebase-bom:34.11.0"))
+
+    // Firebase Analytics
+    implementation("com.google.firebase:firebase-analytics")
+
+    // Add other Firebase products if needed:
+    // implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    // implementation("com.google.firebase:firebase-messaging")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    
 }
