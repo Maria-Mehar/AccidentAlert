@@ -110,7 +110,7 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
                         const SizedBox(height: 15),
 
                         DropdownButtonFormField<String>(
-                          value: selectedVehicle,
+                          initialValue: selectedVehicle,
                           dropdownColor: Colors.black87,
                           items: vehicles
                               .map(

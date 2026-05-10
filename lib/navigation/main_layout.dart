@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:accident_alert/screens/home_screen.dart';
-import 'package:accident_alert/screens/location_screen.dart';
-import 'package:accident_alert/screens/history_screen.dart';
-import 'package:accident_alert/screens/notification_screen.dart';
-import 'package:accident_alert/screens/setting_screen.dart';
+import '../screens/home_screen.dart';
+import '../screens/location_screen.dart';
+import '../screens/history_screen.dart';
+import '../screens/notification_screen.dart';
+import '../screens/setting_screen.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -22,8 +22,7 @@ class _MainLayoutState extends State<MainLayout> {
     const LocationScreen(),
     const HistoryScreen(),
     const NotificationScreen(),
-
-    const SettingsPage(),
+    const SettingPage(),
   ];
 
   final List<Widget> _navigationItems = const [
@@ -44,7 +43,10 @@ class _MainLayoutState extends State<MainLayout> {
         color: const Color(0xFF1A1A1A),
         child: CurvedNavigationBar(
           backgroundColor: Colors.transparent,
-          color: const Color(0xFF141414).withOpacity(0.95),
+          color: const Color(0xFF141414).withValues(alpha: 0.95),
+          // color: const Color(0xFF141414).withOpacity(0.95),
+
+          // Colors.black.withValues(alpha: 0.5),
           buttonBackgroundColor: const Color(0xFFE53935),
           items: _navigationItems,
           index: _pageIndex,
