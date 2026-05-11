@@ -22,7 +22,7 @@ class _MainLayoutState extends State<MainLayout> {
     const LocationScreen(),
     const HistoryScreen(),
     const NotificationScreen(),
-    const SettingPage(),
+    const SettingsPage(),
   ];
 
   final List<Widget> _navigationItems = const [

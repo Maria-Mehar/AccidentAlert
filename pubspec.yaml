@@ -1,85 +1,7 @@
 name: AcciSense
-# name: accident_alert
-# description: "A new Flutter project."
-# publish_to: 'none'
-
-# version: 1.0.0+1
-
-# environment:
-#   sdk: ^3.9.2
-
-# dependencies:
-#   flutter:
-#     sdk: flutter
-#   cupertino_icons: ^1.0.8
-#   curved_navigation_bar: any
-#   lottie: any
-#   video_player: any
-#   shared_preferences: any
-#   firebase_core: any
-#   # firebase_auth: any
-#   firebase_database: any
-#   firebase_messaging: any
-#   geolocator: any
-#   flutter_sms: any
-#   sensors_plus: any
-#   # google_sign_in: any
-#   google_sign_in: ^6.2.1  # Check karein ke ye line mojood hai
-#   firebase_auth: ^5.0.0
-#   # curved_navigation_bar: ^1.0.6
-#   # lottie: ^3.1.0
-#   # video_player: ^2.9.2
-#   # shared_preferences: ^2.5.5
-#   # firebase_core: ^3.15.2      # <--- Ye add karein
-#   # firebase_auth: ^5.15.3
-#   # firebase_database: ^10.5.0
-#   # firebase_messaging: ^14.7.0
-#   # geolocator: ^13.0.4         # <--- Ye add karein
-#   # flutter_sms: ^2.3.3         # <--- Ye add karein
-#   # sensors_plus: ^6.1.1        # <--- Ye add karein
-#   # google_sign_in: ^6.3.0
-
-  
-
-# dev_dependencies:
-#   flutter_test:
-#     sdk: flutter
-#   flutter_lints: ^6.0.0
-#   flutter_native_splash: ^2.4.7
-
-# flutter_native_splash: 
-#   color: "#1A1A1A"
-#   image: assets/images/text_logo.png
-#   # image: assets/images/logo_with_text.png
-#   android: true
-#   ios: true
-#   web: false
-#   android_gravity: center
-#   ios_content_mode: scaleAspectFit
-#   fullscreen: true
-
-#   android_12:
-#     image: assets/images/text_logo.png
-#     # image: assets/images/logo_with_text.png
-#     color: "#1A1A1A"
-
-# flutter_launcher_icons:
-#   android: "launcher_icon"
-#   ios: true
-#   image_path: "assets/images/logo.png" 
-#   adaptive_icon_background: "#1A1A1A" 
-#   adaptive_icon_foreground: "assets/images/logo.png"
-
-# flutter:
-#   uses-material-design: true
-
-#   assets:
-#     - assets/images/
-#     - assets/animations/
-
-name: accident_alert
 description: "A new Flutter project."
 publish_to: 'none'
+
 version: 1.0.0+1
 
 environment:
@@ -95,24 +17,18 @@ dependencies:
   flutter_map: ^8.2.2
   latlong2: ^0.9.0
   firebase_core: ^4.5.0
-  firebase_auth: ^6.0.0
+  firebase_auth: ^6.4.0
   cloud_firestore: ^6.1.3
   geolocator: ^14.0.2
   google_sign_in: ^6.2.1
-  video_player: ^2.9.2
   shared_preferences: ^2.5.5
   firebase_database: ^12.3.0
   firebase_messaging: ^16.2.0
   flutter_local_notifications: ^17.0.0
   audioplayers: ^6.0.0
-  firebase_core: ^4.7.0
-  firebase_auth: ^6.4.0
-  firebase_database: ^12.3.0
-  firebase_messaging: ^16.2.0
-  geolocator: ^14.0.2
   flutter_sms: ^2.3.3
   sensors_plus: ^7.0.0
-  google_sign_in: ^7.2.0
+  
 
 dev_dependencies:
   flutter_test:
@@ -123,15 +39,21 @@ dev_dependencies:
 
 flutter_native_splash: 
   color: "#1A1A1A"
-  image: assets/images/text_logo.png
+  # image: assets/images/text_logo.png
+  image: assets/images/logo.png
+  branding: assets/images/text.png
   android: true
   ios: true
   web: false
   android_gravity: center
   ios_content_mode: scaleAspectFit
-  fullscreen: true
+  # fullscreen: true
+
   android_12:
-    image: assets/images/text_logo.png
+    # image: assets/images/text_logo.png
+    image: assets/images/logo.png
+    branding: assets/images/text.png
+    icon_background_color: "#1A1A1A"
     color: "#1A1A1A"
 
 flutter_launcher_icons:
@@ -143,6 +65,7 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+
   assets:
     - assets/images/
     - assets/animations/

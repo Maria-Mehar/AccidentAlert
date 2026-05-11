@@ -9,7 +9,7 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
-  Map<String, dynamic>? currentNotification; // null = no accident yet
+  Map<String, dynamic>? currentNotification;
 
   @override
   Widget build(BuildContext context) {
@@ -28,27 +28,26 @@ class _NotificationScreenState extends State<NotificationScreen> {
         // Dark overlay
         Container(color: Colors.black.withOpacity(0.35)),
 
-          SafeArea(
-            child: Column(
-              children: [
-                const SizedBox(height: 45),
+        SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(height: 45),
 
-                Center(
-                  child: Text(
-                    "Notifications",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 42,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.2,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black.withOpacity(0.6),
-                          offset: const Offset(0, 3),
-                          blurRadius: 6,
-                        ),
-                      ],
-                    ),
+              Center(
+                child: Text(
+                  "Notifications",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 42,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withOpacity(0.6),
+                        offset: const Offset(0, 3),
+                        blurRadius: 6,
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -79,7 +78,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
-  // ------------------- EMPTY STATE -------------------
   Widget _buildEmptyState() {
     return Center(
       child: ClipRRect(
@@ -121,7 +119,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
-  // ------------------- ACCIDENT NOTIFICATION -------------------
   Widget _buildAccidentNotification(Map<String, dynamic> notification) {
     return Center(
       child: ClipRRect(
@@ -163,7 +160,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
-  // ------------------- GLASS BUTTON -------------------
   Widget _glassButton({required String text, required VoidCallback onTap}) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
@@ -195,7 +191,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
-  // ------------------- ADD TEST NOTIFICATION -------------------
   void _addTestNotification() {
     final newNotification = {"time": "04:23 PM", "location": "F-10 Markaz"};
 
