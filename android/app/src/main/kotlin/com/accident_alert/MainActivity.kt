@@ -6,6 +6,7 @@ class MainActivity : FlutterActivity()
 
 override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
     super.configureFlutterEngine(flutterEngine)
+    createNotificationChannel()
 
 
     MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "accident_channel")
@@ -22,4 +23,16 @@ override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
                 result.notImplemented()
             }
         }
+}
+
+private fun createNotificationChannel() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val channel = NotificationChannel(
+            "accident_channel", // Channel ID
+            "Accident Alerts",  // Name
+            NotificationManager.IMPORTANCE_HIGH
+        )
+        val manager = getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(channel)
+    }
 }

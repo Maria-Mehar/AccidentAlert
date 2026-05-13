@@ -157,14 +157,14 @@ class PrivacyPolicyScreen extends StatelessWidget {
     );
   }
 
-  Widget _policyHeader(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: Colors.white38,
-        fontSize: 12,
-        fontStyle: FontStyle.italic,
-      ),
-    );
-  }
+  //   Widget _policyHeader(String text) {
+  //     return Text(
+  //       text,
+  //       style: const TextStyle(
+  //         color: Colors.white38,
+  //         fontSize: 12,
+  //         fontStyle: FontStyle.italic,
+  //       ),
+  //     );
+  //   }
 }
