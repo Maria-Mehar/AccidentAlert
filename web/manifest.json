@@ -1,6 +1,6 @@
 {
-    "name": "accident_alert",
-    "short_name": "accident_alert",
+    "name": "AcciSense",
+    "short_name": "AcciSense",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

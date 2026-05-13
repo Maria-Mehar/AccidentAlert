@@ -1,0 +1,2 @@
+E:/GitHub/AccidentAlert/android/app/.cxx/debug/685m4d5y/armeabi-v7a/CMakeFiles/edit_cache.dir
+E:/GitHub/AccidentAlert/android/app/.cxx/debug/685m4d5y/armeabi-v7a/CMakeFiles/rebuild_cache.dir
