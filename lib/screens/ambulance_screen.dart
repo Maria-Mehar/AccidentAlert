@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'auth_screen.dart';
-import 'package:lottie/lottie.dart';
 
 class AmbulanceScreen extends StatefulWidget {
   const AmbulanceScreen({super.key});
@@ -32,18 +31,12 @@ class _AmbulanceScreenState extends State<AmbulanceScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            /// ✅ PERFECT CENTER FIX
-            SizedBox(
-              width: 220,
-              height: 220,
-              child: Center(
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: Lottie.asset('assets/animations/ambulance.json'),
-                ),
-              ),
+            Image.asset(
+              'assets/animations/ambulance.gif',
+              width: 200,
+              height: 200,
+              fit: BoxFit.cover,
             ),
-
             const SizedBox(height: 40),
 
             const Text(
@@ -55,9 +48,7 @@ class _AmbulanceScreenState extends State<AmbulanceScreen> {
                 letterSpacing: 1,
               ),
             ),
-
             const SizedBox(height: 10),
-
             const Text(
               'Stay Safe with AcciSense',
               style: TextStyle(

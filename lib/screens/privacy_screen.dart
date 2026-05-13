@@ -69,7 +69,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _policyHeader("Last Updated: March 2026"),
+                                // _policyHeader("Last Updated: March 2026"),
                                 const SizedBox(height: 20),
 
                                 _policySection(
@@ -157,14 +157,14 @@ class PrivacyPolicyScreen extends StatelessWidget {
     );
   }
 
-  Widget _policyHeader(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: Colors.white38,
-        fontSize: 12,
-        fontStyle: FontStyle.italic,
-      ),
-    );
-  }
+  //   Widget _policyHeader(String text) {
+  //     return Text(
+  //       text,
+  //       style: const TextStyle(
+  //         color: Colors.white38,
+  //         fontSize: 12,
+  //         fontStyle: FontStyle.italic,
+  //       ),
+  //     );
+  //   }
 }

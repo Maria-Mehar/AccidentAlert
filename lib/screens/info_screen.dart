@@ -1,9 +1,34 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-// import 'package:accident_alert/screens/notification_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'vehicle_selection.dart';
 
-class InfoScreen extends StatelessWidget {
+class InfoScreen extends StatefulWidget {
   const InfoScreen({super.key});
+
+  @override
+  State<InfoScreen> createState() => _InfoScreenState();
+}
+
+class _InfoScreenState extends State<InfoScreen> {
+  String driverName = "Maria Mehar";
+  String vehicleType = "Car";
+  String vehicleNumber = "LEA-1234";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedData();
+  }
+
+  Future<void> _loadSavedData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      driverName = prefs.getString('driver_name') ?? "Maria Mehar";
+      vehicleType = prefs.getString('vehicle_type') ?? "Car";
+      vehicleNumber = prefs.getString('vehicle_number') ?? "LEA-1234";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,10 +62,9 @@ class InfoScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 15),
-
-                      const Text(
-                        "Maria Mehar 👋",
-                        style: TextStyle(
+                      Text(
+                        "$driverName ",
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 27,
                           fontWeight: FontWeight.bold,
@@ -57,12 +81,11 @@ class InfoScreen extends StatelessWidget {
                   const SizedBox(height: 10),
 
                   glassCard(
-                    const SizedBox(height: 10),
-
+                    const SizedBox(height: 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
+                      children: [
+                        const Text(
                           "Vehicle Information",
                           style: TextStyle(
                             fontSize: 20,
@@ -70,17 +93,17 @@ class InfoScreen extends StatelessWidget {
                             color: Colors.white,
                           ),
                         ),
-                        Divider(color: Colors.white54),
+                        const Divider(color: Colors.white54),
                         Text(
-                          "Vehicle: Car",
-                          style: TextStyle(color: Colors.white70),
+                          "Vehicle: $vehicleType",
+                          style: const TextStyle(color: Colors.white70),
                         ),
                         Text(
-                          "Number: LEA-1234",
-                          style: TextStyle(color: Colors.white70),
+                          "Number: $vehicleNumber",
+                          style: const TextStyle(color: Colors.white70),
                         ),
-                        SizedBox(height: 6),
-                        Text(
+                        const SizedBox(height: 6),
+                        const Text(
                           "GPS: ON",
                           style: TextStyle(
                             color: Colors.greenAccent,
@@ -90,52 +113,70 @@ class InfoScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const Spacer(),
 
-                  // Center(
-                  //   child: GestureDetector(
-                  //     onTap: () {
-                  //       Navigator.push(
-                  //         context,
-                  //         MaterialPageRoute(
-                  //           builder: (context) => const NotificationScreen(),
-                  //         ),
-                  //       );
-                  //     },
-                  //     child: Container(
-                  //       width: 160,
-                  //       height: 160,
-                  //       decoration: BoxDecoration(
-                  //         color: Colors.redAccent,
-                  //         shape: BoxShape.circle,
-                  //         boxShadow: [
-                  //           BoxShadow(
-                  //             color: Colors.redAccent.withOpacity(0.5),
-                  //             blurRadius: 30,
-                  //             spreadRadius: 5,
-                  //           ),
-                  //         ],
-                  //       ),
-                  //       child: const Center(
-                  //         child: Text(
-                  //           "SOS",
-                  //           style: TextStyle(
-                  //             fontSize: 40,
-                  //             color: Colors.white,
-                  //             fontWeight: FontWeight.bold,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
-                  // const SizedBox(height: 15),
-                  // const Center(
-                  //   child: Text(
-                  //     "Press for Emergency",
-                  //     style: TextStyle(color: Colors.white70),
-                  //   ),
-                  // ),
+                  const SizedBox(height: 15),
+
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const VehicleSelectionScreen(fromSettings: true),
+                        ),
+                      ).then((_) => _loadSavedData());
+                    },
+                    child: glassCard(
+                      const SizedBox(height: 0),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.edit_note_rounded,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text(
+                                  "Update Vehicle & Driver",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  "Change vehicle number or driver name",
+                                  style: TextStyle(
+                                    color: Colors.white54,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            color: Colors.white54,
+                            size: 16,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 15),
+
                   const Spacer(),
                 ],
               ),

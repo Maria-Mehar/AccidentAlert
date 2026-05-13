@@ -12,10 +12,8 @@ class AuthScreen extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // 🔹 Background Image
           Image.asset('assets/images/bg2.jpg', fit: BoxFit.cover),
 
-          // 🔹 Dark gradient overlay
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -29,7 +27,6 @@ class AuthScreen extends StatelessWidget {
             ),
           ),
 
-          // 🔹 TOP APP NAME
           Positioned(
             top: 140,
             left: 0,
@@ -47,7 +44,6 @@ class AuthScreen extends StatelessWidget {
             ),
           ),
 
-          // MAIN GLASS CONTENT
           Center(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(30),
@@ -111,7 +107,6 @@ class AuthScreen extends StatelessWidget {
 
                       const SizedBox(height: 35),
 
-                      // 🔥 GLASS Login Button
                       GlassButton(
                         text: "Login",
                         onTap: () {
@@ -125,7 +120,6 @@ class AuthScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 15),
 
-                      // 🔥 GLASS OUTLINE Sign Up Button
                       GlassOutlineButton(
                         text: "Sign Up",
                         onTap: () {
@@ -148,10 +142,6 @@ class AuthScreen extends StatelessWidget {
     );
   }
 }
-
-// ---------------------------------------------------------------
-// 🔹 GLASS BUTTON WIDGET
-// ---------------------------------------------------------------
 
 class GlassButton extends StatelessWidget {
   final String text;
