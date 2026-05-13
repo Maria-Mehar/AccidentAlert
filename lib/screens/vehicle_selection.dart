@@ -1,7 +1,11 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+<<<<<<< Updated upstream
 import 'package:AcciSense/navigation/main_layout.dart';
+=======
+import 'package:accident_alert/navigation/main_layout.dart';
+>>>>>>> Stashed changes
 
 class VehicleSelectionScreen extends StatefulWidget {
   final bool fromSettings;
