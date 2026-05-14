@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:AcciSense/screens/alert_screen.dart';
-
 class AlertHandler {
   static bool _isAlertOpen = false;
 
@@ -21,6 +20,8 @@ class AlertHandler {
               context,
               MaterialPageRoute(
                 builder: (_) => AlertScreen(docId: doc.id, data: doc.data()),
+                 builder: (_) => AlertScreen( docId: doc.id,  data: doc.data() as Map<String, dynamic>
+                 )
               ),
             ).then((_) {
               _isAlertOpen = false; // Screen close hone par wapas false
@@ -28,4 +29,6 @@ class AlertHandler {
           }
         });
   }
-}
+} // Screen import ki
+
+            
