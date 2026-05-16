@@ -1,4 +1,4 @@
-
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
@@ -15,6 +15,35 @@ class AlertScreen extends StatefulWidget {
 class _AlertScreenState extends State<AlertScreen> {
   @override
   Widget build(BuildContext context) {
+// State ke andar ye variables aur functions:
+int seconds = 10;
+Timer? timer;
+bool alertSent = false;
+
+@override
+void initState() {
+  super.initState();
+  startCountdown();
+}
+
+void startCountdown() {
+  timer = Timer.periodic(const Duration(seconds: 1), (t) {
+    if (!mounted) return;
+    if (seconds > 0) {
+      setState(() => seconds--);
+    } else {
+      t.cancel();
+      if (!alertSent) {
+        sendAutoAlert();
+      }
+    }
+  });
+}
+
+void sendAutoAlert() {
+  _updateStatus('auto_sent');
+  setState(() => alertSent = true);
+}
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Stack(
