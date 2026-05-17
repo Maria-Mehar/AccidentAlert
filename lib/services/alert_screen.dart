@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-
+import 'package:geolocator/geolocator.dart';
 class AlertScreen extends StatefulWidget {
   final String? docId;
   final Map<String, dynamic>? data;
@@ -84,7 +84,31 @@ void sendAutoAlert() {
                         style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 15),
-                      // Yahan countdown aye ga (Day 4)
+                  
+
+String locationText = "Fetching location...";
+
+Future<void> _getLocation() async {
+  try {
+    Position pos = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    if (mounted) {
+      setState(() {
+        locationText = "Lat: ${pos.latitude}, Lng: ${pos.longitude}";
+      });
+      // Firestore update
+      if (widget.docId != null) {
+        FirebaseFirestore.instance
+            .collection('accidents')
+            .doc(widget.docId)
+            .update({'latitude': pos.latitude, 'longitude': pos.longitude});
+      }
+    }
+  } catch (e) {
+    setState(() => locationText = "Location unavailable");
+  }
+}
                     ],
                   ),
                 ),
