@@ -85,6 +85,24 @@ void sendAutoAlert() {
                       ),
                       const SizedBox(height: 15),
                   
+void cancelAlert() {
+  timer?.cancel();
+  _updateStatus('cancelled');
+  Navigator.pop(context); 
+}
+
+void confirmAlert() {
+  timer?.cancel();
+  _updateStatus('confirmed');
+  Navigator.pop(context);
+}
+
+void _updateStatus(String status) {
+  FirebaseFirestore.instance
+      .collection('accidents')
+      .doc(widget.docId)
+      .update({'status': status});
+}
 
 String locationText = "Fetching location...";
 
