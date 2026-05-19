@@ -127,6 +127,11 @@ Future<void> _getLocation() async {
     setState(() => locationText = "Location unavailable");
   }
 }
+@override
+void dispose() {
+  timer?.cancel(); // Timer ko stop karna zaroori hai memory bachane ke liye
+  super.dispose();
+}
                     ],
                   ),
                 ),
