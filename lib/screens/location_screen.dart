@@ -1,224 +1,194 @@
-import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:geolocator/geolocator.dart';
 
-class LocationScreen extends StatefulWidget {
+class LocationScreen extends StatelessWidget {
   const LocationScreen({super.key});
 
   @override
-  State<LocationScreen> createState() => _LocationScreenState();
-}
-
-class _LocationScreenState extends State<LocationScreen>
-    with WidgetsBindingObserver {
-  double? lat;
-  double? lng;
-
-  final MapController mapController = MapController();
-  StreamSubscription<Position>? positionStream;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this); // 🔥 detect resume
-    startLiveTracking();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    positionStream?.cancel();
-    super.dispose();
-  }
-
-  // 🔥 APP RESUME (jab user settings se wapas aaye)
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      startLiveTracking(); // 🔥 auto restart
-    }
-  }
-
-  // 🔴 MAIN FUNCTION
-  Future<void> startLiveTracking() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-    if (!serviceEnabled) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Location is OFF. Please enable it.")),
-        );
-      }
-
-      await Geolocator.openLocationSettings();
-      return;
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) return;
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      await Geolocator.openAppSettings();
-      return;
-    }
-
-    // 🔥 FIRST LOCATION
-    Position firstPosition = await Geolocator.getCurrentPosition();
-
-    setState(() {
-      lat = firstPosition.latitude;
-      lng = firstPosition.longitude;
-    });
-
-    mapController.move(LatLng(lat!, lng!), 16);
-
-    // 🔥 STREAM START (pehle cancel karo agar already chal rahi ho)
-    await positionStream?.cancel();
-
-    positionStream =
-        Geolocator.getPositionStream(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            distanceFilter: 5,
-          ),
-        ).listen((Position position) {
-          setState(() {
-            lat = position.latitude;
-            lng = position.longitude;
-          });
-
-          mapController.move(LatLng(lat!, lng!), mapController.camera.zoom);
-        });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          // 🗺 MAP
-          lat == null
-              ? const Center(child: CircularProgressIndicator())
-              : FlutterMap(
-                  mapController: mapController,
-                  options: MapOptions(
-                    initialCenter: LatLng(lat!, lng!),
-                    initialZoom: 17, // 🔥 thoda zoom clear
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                      subdomains: ['a', 'b', 'c'],
-                      userAgentPackageName: "com.example.accident_alert",
-                      maxZoom: 19,
-                    ),
-
-                    // 🔵 BLUE DOT
-                    CircleLayer(
-                      circles: [
-                        CircleMarker(
-                          point: LatLng(lat!, lng!),
-                          radius: 12,
-                          color: Colors.blue.withOpacity(0.2),
-                          borderStrokeWidth: 3,
-                          borderColor: Colors.blue,
-                        ),
-                      ],
-                    ),
-
-                    // 📍 MARKER
-                    MarkerLayer(
-                      markers: [
-                        Marker(
-                          point: LatLng(lat!, lng!),
-                          width: 40,
-                          height: 40,
-                          child: const Icon(
-                            Icons.location_on,
-                            color: Colors.red,
-                            size: 35,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
-          // 🔝 TOP BOX + BUTTON
-          SafeArea(
-            child: Container(
-              margin: const EdgeInsets.all(12),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.45),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(16),
-                onTap: () async {
-                  setState(() {
-                    lat = null;
-                    lng = null;
-                  });
-
-                  await startLiveTracking();
-
-                  if (lat != null && lng != null && mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Location Updated Successfully!"),
-                      ),
-                    );
-                  }
-                },
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.my_location,
-                      color: Colors.blue.shade300,
-                      size: 26,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            lat != null && lng != null
-                                ? "Lat: ${lat!.toStringAsFixed(5)}, Lng: ${lng!.toStringAsFixed(5)}"
-                                : "Turn ON location to continue",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          const Text(
-                            "Live tracking enabled",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+    return Stack(
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/home.jpg"),
+              fit: BoxFit.cover,
             ),
           ),
-        ],
+        ),
+
+        Container(color: Colors.black.withOpacity(0.35)),
+
+        SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Location",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  "Track & update your current position",
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+
+                const SizedBox(height: 25),
+
+                glassCard(
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.my_location,
+                        color: Colors.blue.shade300,
+                        size: 32,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          "Current Location\nTap to refresh",
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 25),
+
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Use My Location",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                const Text(
+                  "Map Preview",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 15),
+
+                glassCard(
+                  child: SizedBox(
+                    height: 180,
+                    child: Center(
+                      child: Icon(
+                        Icons.map,
+                        color: Colors.white.withOpacity(0.25),
+                        size: 70,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                const Text(
+                  "Nearby Accident Alerts",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 15),
+
+                glassCard(
+                  child: alertTile(
+                    icon: Icons.error,
+                    color: Colors.red.shade300,
+                    title: "Accident near Shahrah-e-Faisal",
+                    time: "5 min ago",
+                  ),
+                ),
+                const SizedBox(height: 15),
+
+                glassCard(
+                  child: alertTile(
+                    icon: Icons.warning_amber_rounded,
+                    color: Colors.orange.shade300,
+                    title: "Emergency in Gulshan Area",
+                    time: "12 min ago",
+                  ),
+                ),
+                const SizedBox(height: 15),
+
+                glassCard(
+                  child: alertTile(
+                    icon: Icons.traffic,
+                    color: Colors.yellow.shade300,
+                    title: "Traffic Jam due to incident",
+                    time: "20 min ago",
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget glassCard({required Widget child}) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withOpacity(0.25)),
+          ),
+          child: child,
+        ),
       ),
+    );
+  }
+
+  Widget alertTile({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String time,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, color: color, size: 32),
+        const SizedBox(width: 15),
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(color: Colors.white, fontSize: 15),
+          ),
+        ),
+        Text(time, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+      ],
     );
   }
 }

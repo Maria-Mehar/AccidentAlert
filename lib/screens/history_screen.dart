@@ -32,7 +32,6 @@ class _HistoryScreenState extends State<HistoryScreen>
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Background
         Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
@@ -42,10 +41,8 @@ class _HistoryScreenState extends State<HistoryScreen>
           ),
         ),
 
-        // Dark overlay
         Container(color: Colors.black.withOpacity(0.45)),
 
-        // Main content
         SafeArea(
           child: Stack(
             children: [
@@ -83,7 +80,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                 ),
               ),
 
-              // Bottom Glass Button
               Positioned(
                 left: 20,
                 right: 20,
@@ -139,7 +135,7 @@ class _HistoryScreenState extends State<HistoryScreen>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Container(
-            width: 280, // Fixed width like notification card
+            width: 280,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
             decoration: BoxDecoration(
               color: Colors.black.withOpacity(0.65),
@@ -203,50 +199,34 @@ class _HistoryScreenState extends State<HistoryScreen>
               const SizedBox(height: 10),
               Text(
                 "📅 Date: ${accident["date"]}",
+
                 style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
               Text(
                 "⏰ Time: ${accident["time"]}",
+
                 style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
               const SizedBox(height: 10),
               Text(
                 "📍 Location: ${accident["location"]}",
+
                 style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
               Text(
                 "🛰 Lat: ${accident["lat"]}   Lon: ${accident["lon"]}",
+
                 style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
               const SizedBox(height: 10),
               Text(
                 "🚗 Device: ${accident["device"]}",
+
                 style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
               const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text(
-                      "View Map",
-                      style: TextStyle(
-                        color: Colors.blueAccent,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text(
-                      "Details",
-                      style: TextStyle(
-                        color: Colors.blueAccent,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  
                 ],
               ),
             ],

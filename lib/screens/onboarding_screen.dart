@@ -13,8 +13,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   void initState() {
     super.initState();
 
-    // Wait for 4 seconds before moving to AmbulanceScreen
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -27,12 +26,11 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A1A), // Dark background
+      backgroundColor: const Color(0xFF1A1A1A),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 🔹 Collision animation (white filtered)
             ColorFiltered(
               colorFilter: const ColorFilter.mode(
                 Colors.white,
@@ -48,7 +46,6 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
             const SizedBox(height: 25),
 
-            // 🔹 First line
             const Text(
               "Collision Detected...",
               style: TextStyle(
@@ -60,7 +57,6 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
             const SizedBox(height: 10),
 
-            // 🔹 Second line
             const Text(
               "Every Second Matters for Safety.",
               style: TextStyle(

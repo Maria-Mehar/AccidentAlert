@@ -13,8 +13,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    // Wait 7 seconds, then navigate to OnBoardingScreen
-    Future.delayed(const Duration(seconds: 4), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -31,8 +30,7 @@ class _SplashScreenState extends State<SplashScreen> {
         color: Color(0xFF1A1A1A),
         child: Center(
           child: Image.asset(
-            // 'assets/images/logo_with_text.png',
-            'assets/images/text_logo.png', // tumhari combined logo+text image
+            'assets/images/text_logo.png',
             width: 180,
             height: 180,
             fit: BoxFit.contain,
