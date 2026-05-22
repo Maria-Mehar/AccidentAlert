@@ -1,8 +1,12 @@
 package com.accident_alert
 
 import io.flutter.embedding.android.FlutterActivity
+import android.app.PendingIntent
 
 class MainActivity : FlutterActivity()
+{
+
+    
 
 override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
     super.configureFlutterEngine(flutterEngine)
@@ -35,4 +39,28 @@ private fun createNotificationChannel() {
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(channel)
     }
+
+private fun showAccidentNotification(docId: String) {
+val confirmIntent = Intent(this, NotificationReceiver::class.java).apply {
+    action = "CONFIRM_ACTION"
+    putExtra("docId", docId)
+}
+
+val confirmPendingIntent = PendingIntent.getBroadcast(
+    this, 0, confirmIntent, 
+    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+)
+
+val cancelIntent = Intent(this, NotificationReceiver::class.java).apply {
+            action = "CANCEL_ACTION"
+            putExtra("docId", docId)
+        }
+
+        val cancelPendingIntent = PendingIntent.getBroadcast(
+            this,
+            1,
+            cancelIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+}
 }
