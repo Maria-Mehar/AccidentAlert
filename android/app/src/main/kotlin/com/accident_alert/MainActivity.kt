@@ -39,6 +39,7 @@ private fun createNotificationChannel() {
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(channel)
     }
+}
 
 private fun showAccidentNotification(docId: String) {
 val confirmIntent = Intent(this, NotificationReceiver::class.java).apply {
