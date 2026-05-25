@@ -61,3 +61,26 @@ class NotificationService {
       payload: docId, // Ye ID hume batati hai kis accident ko update karna hai
     );
   }
+ // Day 3: notification_service.dartimport 'package:cloud_firestore/cloud_firestore.dart';
+
+  // 🔹 Step 3: Handle Button Clicks
+  static void handleAction(NotificationResponse response) {
+    final String? docId = response.payload;
+    if (docId == null || docId.isEmpty) return;
+
+    final docRef = FirebaseFirestore.instance
+        .collection('accidents')
+        .doc(docId);
+
+    // Agar user ne 'Confirm' dabaya
+    if (response.actionId == 'confirm') {
+      docRef.update({'status': 'confirmed'});
+      print("Status updated to Confirmed from Background");
+    }
+
+    // Agar user ne 'Cancel' dabaya
+    if (response.actionId == 'cancel') {
+      docRef.update({'status': 'cancelled'});
+      print("Status updated to Cancelled from Background");
+    }
+  }
