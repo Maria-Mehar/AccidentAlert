@@ -63,5 +63,18 @@ val cancelIntent = Intent(this, NotificationReceiver::class.java).apply {
             cancelIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
+
+
+val builder = NotificationCompat.Builder(this, "accident_channel")
+    .setSmallIcon(R.mipmap.ic_launcher)
+    .setContentTitle("Accident Alert")
+    .setContentText("Accident detected! Are you okay?")
+    .setPriority(NotificationCompat.PRIORITY_HIGH)
+    .addAction(0, "Confirm", confirmPendingIntent) // Button 1
+    .addAction(0, "Cancel", cancelPendingIntent)   // Button 2
+
+val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+manager.notify(101, builder.build())
 }
 }
