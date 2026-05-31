@@ -25,7 +25,7 @@ class NotificationService {
 }
 //Day 2: notification_service.dart
 // 🔹 Step 2: Show Notification with Buttons
-  static Future<void> showAlertNotification(String docId) async {
+  Future<void> showAlertNotification(String docId) async {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
           'alert_channel',
@@ -64,7 +64,7 @@ class NotificationService {
  // Day 3: notification_service.dartimport 'package:cloud_firestore/cloud_firestore.dart';
 
   // 🔹 Step 3: Handle Button Clicks
-  static void handleAction(NotificationResponse response) {
+  void handleAction(NotificationResponse response) {
     final String? docId = response.payload;
     if (docId == null || docId.isEmpty) return;
 

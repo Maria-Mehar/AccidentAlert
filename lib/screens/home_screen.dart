@@ -736,7 +736,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-    );
+    )
   }
 
   Widget glassCard({required Widget child, double? height}) {
