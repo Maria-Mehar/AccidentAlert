@@ -731,7 +731,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
-  bool _isPasswordVisible = false;
+  final bool _isPasswordVisible = false;
   bool _isLoading = false;
 
 <<<<<<< Updated upstream
@@ -886,12 +886,12 @@ class _SignupScreenState extends State<SignupScreen> {
     if (emailController.text.isEmpty ||
         passwordController.text.isEmpty ||
         usernameController.text.isEmpty) {
-      _showSnackBar("Please fill all fields");
+      showSnackBar("Please fill all fields");
       return;
     }
 
     if (passwordController.text != confirmPasswordController.text) {
-      _showSnackBar("Passwords do not match");
+      showSnackBar("Passwords do not match");
       return;
     }
 
@@ -910,7 +910,7 @@ class _SignupScreenState extends State<SignupScreen> {
       );
 
       if (!mounted) return;
-      _showSnackBar("Account Created Successfully!");
+      showSnackBar("Account Created Successfully!");
 
       // 4. Success ke baad Login screen par bhej dein
 >>>>>>> Stashed changes
@@ -920,7 +920,7 @@ class _SignupScreenState extends State<SignupScreen> {
       );
     } on FirebaseAuthException catch (e) {
 <<<<<<< Updated upstream
-      _showSnackBar(e.message ?? "Signup failed");
+      showSnackBar(e.message ?? "Signup failed");
 =======
       // Specific Firebase Errors handle karein
       String errorMessage = "Signup Failed";
@@ -933,16 +933,16 @@ class _SignupScreenState extends State<SignupScreen> {
       } else {
         errorMessage = e.message ?? "An error occurred.";
       }
-      _showSnackBar(errorMessage);
+      showSnackBar(errorMessage);
     } catch (e) {
-      _showSnackBar("An unexpected error occurred: $e");
+      showSnackBar("An unexpected error occurred: $e");
 >>>>>>> Stashed changes
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  void _showSnackBar(String message) {
+  void showSnackBar(String message) {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
@@ -987,7 +987,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                _glassInputCard(
+                glassInputCard(
                   child: TextField(
                     controller: usernameController,
                     style: const TextStyle(color: Colors.white),
@@ -1002,7 +1002,7 @@ class _SignupScreenState extends State<SignupScreen> {
 >>>>>>> Stashed changes
                   ),
                 ),
-                _glassInputCard(
+                glassInputCard(
                   child: TextField(
                     controller: emailController,
                     style: const TextStyle(color: Colors.white),
@@ -1017,7 +1017,7 @@ class _SignupScreenState extends State<SignupScreen> {
 >>>>>>> Stashed changes
                   ),
                 ),
-                _glassInputCard(
+                glassInputCard(
                   child: TextField(
                     controller: passwordController,
                     obscureText: !_isPasswordVisible,
@@ -1050,12 +1050,12 @@ class _SignupScreenState extends State<SignupScreen> {
 <<<<<<< Updated upstream
                 const SizedBox(height: 25),
 =======
-                _glassInputCard(
+                glassInputCard(
                   child: TextField(
                     controller: confirmPasswordController,
                     obscureText: !_isConfirmPasswordVisible,
                     style: const TextStyle(color: Colors.white),
-                    decoration: _inputDecoration(
+                    decoration: inputDecoration(
                       "Confirm Password",
                       Icons.lock,
                       suffix: IconButton(
@@ -1141,7 +1141,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _glassInputCard({required Widget child}) {
+  Widget glassInputCard({required Widget child}) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
@@ -1163,10 +1163,10 @@ class _SignupScreenState extends State<SignupScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
         child: child,
       ),
-    );
+    )
   }
 
-  InputDecoration _inputDecoration(
+  InputDecoration inputDecoration(
     String hint,
     IconData icon, {
     Widget? suffix,
@@ -1180,7 +1180,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _actionButton(String text, VoidCallback onTap, Color color) {
+  Widget actionButton(String text, VoidCallback onTap, Color color) {
     return ElevatedButton(
       onPressed: onTap,
       style: ElevatedButton.styleFrom(
@@ -1195,7 +1195,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _bottomLink() {
+  Widget bottomLink() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
