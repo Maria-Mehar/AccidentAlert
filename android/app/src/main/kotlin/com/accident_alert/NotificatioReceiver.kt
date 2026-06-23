@@ -11,4 +11,12 @@ class NotificationReceiver : BroadcastReceiver()
     val docId = intent.getStringExtra("docId") ?: return
 
     val db = FirebaseFirestore.getInstance()
- }
+    when (action) {
+        "CONFIRM_ACTION" -> {
+            db.collection("accidents").document(docId).update("status", "confirmed")
+        }
+        "CANCEL_ACTION" -> {
+            db.collection("accidents").document(docId).update("status", "cancelled")
+        }
+    }
+}
